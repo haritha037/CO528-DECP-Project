@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Read(//etc/**)",
+      "Bash(nslookup registry-1.docker.io 8.8.8.8)",
+      "Bash(ipconfig.exe)",
+      "Bash(sudo ls -la /etc/docker/)",
+      "Bash(docker run --rm alpine nslookup registry-1.docker.io)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
