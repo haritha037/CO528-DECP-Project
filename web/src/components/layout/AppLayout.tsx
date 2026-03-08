@@ -1,8 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import NotificationBell from './NotificationBell';
+import { messagingService } from '@/lib/messaging';
 
 const navLinks = [
   { href: '/feed',     label: 'Feed',      icon: '🏠' },
@@ -21,6 +24,16 @@ const adminLinks = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    const unsub = messagingService.subscribeToConversationList(user.uid, (convs) => {
+      const total = convs.reduce((sum, c) => sum + c.unreadCount, 0);
+      setUnreadMessages(total);
+    });
+    return unsub;
+  }, [user?.uid]);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
@@ -47,7 +60,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               }`}
             >
               <span>{link.icon}</span>
-              {link.label}
+              <span className="flex-1">{link.label}</span>
+              {link.href === '/messages' && unreadMessages > 0 && (
+                <span className="bg-blue-600 text-white text-[11px] font-bold rounded-full h-5 min-w-[1.25rem] flex items-center justify-center px-1">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                </span>
+              )}
             </Link>
           ))}
 
@@ -76,7 +94,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* User info + sign out */}
         <div className="p-3 border-t border-gray-200">
-          <div className="text-xs text-gray-500 truncate mb-2">{user?.email}</div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-500 truncate flex-1">{user?.email}</span>
+            <NotificationBell />
+          </div>
+
           <button
             onClick={signOut}
             className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -98,11 +120,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 text-xs transition-colors ${
+              className={`relative flex flex-col items-center gap-0.5 px-2 py-1 text-xs transition-colors ${
                 isActive(link.href) ? 'text-blue-600' : 'text-gray-500'
               }`}
             >
               <span className="text-lg leading-none">{link.icon}</span>
+              {link.href === '/messages' && unreadMessages > 0 && (
+                <span className="absolute -top-0.5 right-0 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {unreadMessages > 9 ? '9+' : unreadMessages}
+                </span>
+              )}
               {link.label}
             </Link>
           ))}

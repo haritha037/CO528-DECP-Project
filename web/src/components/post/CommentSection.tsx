@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import UserAvatar from '@/components/shared/UserAvatar';
 import RoleBadge from '@/components/shared/RoleBadge';
 import { CommentDTO, postApi } from '@/lib/api/postApi';
@@ -9,9 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 interface CommentSectionProps {
   postId: string;
   onCommentAdded?: () => void;
+  onCommentDeleted?: (count: number) => void;
 }
 
-export default function CommentSection({ postId, onCommentAdded }: CommentSectionProps) {
+export default function CommentSection({ postId, onCommentAdded, onCommentDeleted }: CommentSectionProps) {
   const { user } = useAuth();
   const [comments, setComments] = useState<CommentDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,35 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
     }
   };
 
+  const canDelete = (authorUid: string) =>
+    user?.uid === authorUid || user?.role === 'ADMIN';
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('Delete this comment?')) return;
+    try {
+      const comment = comments.find(c => c.id === commentId);
+      const deleteCount = 1 + (comment?.replies.length ?? 0);
+      await postApi.deleteComment(postId, commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      onCommentDeleted?.(deleteCount);
+    } catch {
+      alert('Failed to delete comment.');
+    }
+  };
+
+  const handleDeleteReply = async (commentId: string, replyId: string) => {
+    if (!confirm('Delete this reply?')) return;
+    try {
+      await postApi.deleteComment(postId, replyId);
+      setComments(prev => prev.map(c =>
+        c.id === commentId ? { ...c, replies: c.replies.filter(r => r.id !== replyId) } : c
+      ));
+      onCommentDeleted?.(1);
+    } catch {
+      alert('Failed to delete reply.');
+    }
+  };
+
   const handleAddReply = async (commentId: string) => {
     if (!replyText.trim()) return;
     setSubmitting(true);
@@ -50,6 +81,7 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
       ));
       setReplyText('');
       setReplyingTo(null);
+      onCommentAdded?.();
     } finally {
       setSubmitting(false);
     }
@@ -80,17 +112,19 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
         <div key={comment.id} className="space-y-2">
           {/* Top-level comment */}
           <div className="flex gap-3">
-            <UserAvatar
-              name={comment.author.name}
-              initials={comment.author.initials}
-              profilePictureUrl={comment.author.profilePictureUrl}
-              roleBadge={comment.author.roleBadge}
-              size="sm"
-            />
+            <Link href={`/users/${comment.author.firebaseUid}`} className="shrink-0">
+              <UserAvatar
+                name={comment.author.name}
+                initials={comment.author.initials}
+                profilePictureUrl={comment.author.profilePictureUrl}
+                roleBadge={comment.author.roleBadge}
+                size="sm"
+              />
+            </Link>
             <div className="flex-1">
               <div className="bg-gray-50 rounded-xl px-3 py-2">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-semibold text-gray-900">{comment.author.name}</span>
+                  <Link href={`/users/${comment.author.firebaseUid}`} className="text-xs font-semibold text-gray-900 hover:text-blue-600 transition-colors">{comment.author.name}</Link>
                   <RoleBadge role={comment.author.role} roleBadge={comment.author.roleBadge} />
                 </div>
                 <p className="text-sm text-gray-800">{comment.content}</p>
@@ -103,6 +137,14 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
                 >
                   Reply
                 </button>
+                {canDelete(comment.author.firebaseUid) && (
+                  <button
+                    onClick={() => handleDeleteComment(comment.id)}
+                    className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
 
               {/* Reply input */}
@@ -131,22 +173,34 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
                 <div className="mt-2 ml-4 space-y-2">
                   {comment.replies.map(reply => (
                     <div key={reply.id} className="flex gap-2">
-                      <UserAvatar
-                        name={reply.author.name}
-                        initials={reply.author.initials}
-                        profilePictureUrl={reply.author.profilePictureUrl}
-                        roleBadge={reply.author.roleBadge}
-                        size="sm"
-                      />
+                      <Link href={`/users/${reply.author.firebaseUid}`} className="shrink-0">
+                        <UserAvatar
+                          name={reply.author.name}
+                          initials={reply.author.initials}
+                          profilePictureUrl={reply.author.profilePictureUrl}
+                          roleBadge={reply.author.roleBadge}
+                          size="sm"
+                        />
+                      </Link>
                       <div className="flex-1">
                         <div className="bg-gray-50 rounded-xl px-3 py-2">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-xs font-semibold text-gray-900">{reply.author.name}</span>
+                            <Link href={`/users/${reply.author.firebaseUid}`} className="text-xs font-semibold text-gray-900 hover:text-blue-600 transition-colors">{reply.author.name}</Link>
                             <RoleBadge role={reply.author.role} roleBadge={reply.author.roleBadge} />
                           </div>
                           <p className="text-sm text-gray-800">{reply.content}</p>
                         </div>
-                        <span className="text-xs text-gray-400 px-1">{timeAgo(reply.createdAt)}</span>
+                        <div className="flex items-center gap-3 px-1 mt-1">
+                          <span className="text-xs text-gray-400">{timeAgo(reply.createdAt)}</span>
+                          {canDelete(reply.author.firebaseUid) && (
+                            <button
+                              onClick={() => handleDeleteReply(comment.id, reply.id)}
+                              className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

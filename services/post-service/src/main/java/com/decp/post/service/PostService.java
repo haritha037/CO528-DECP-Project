@@ -1,9 +1,11 @@
 package com.decp.post.service;
 
 import com.decp.post.dto.AddCommentRequest;
+import com.decp.post.dto.AuthorDTO;
 import com.decp.post.dto.CommentDTO;
 import com.decp.post.dto.CreatePostRequest;
 import com.decp.post.dto.PostDTO;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -30,4 +32,6 @@ public interface PostService {
     CommentDTO addReply(String postId, String commentId, String userId, String userName, AddCommentRequest request);
 
     void deleteComment(String postId, String commentId, String userId, String userRole);
+
+    List<AuthorDTO> getReactors(String postId);
 }

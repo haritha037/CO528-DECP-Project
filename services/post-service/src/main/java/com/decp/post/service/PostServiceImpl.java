@@ -340,6 +340,16 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    @Override
+    public List<AuthorDTO> getReactors(String postId) {
+        UUID pid;
+        try { pid = UUID.fromString(postId); }
+        catch (IllegalArgumentException e) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid post ID"); }
+        return reactionRepository.findByPostIdOrderByCreatedAtDesc(pid).stream()
+                .map(r -> resolveAuthor(r.getUserId()))
+                .collect(Collectors.toList());
+    }
+
     private void publishEvent(NotificationEvent event, String routingKey) {
         try {
             rabbitTemplate.convertAndSend(RabbitMQConfig.NOTIFICATION_EXCHANGE, routingKey, event);

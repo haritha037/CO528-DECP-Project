@@ -85,6 +85,9 @@ export const postApi = {
   addReply: (postId: string, commentId: string, content: string): Promise<CommentDTO> =>
     apiClient.post(`/api/posts/${postId}/comments/${commentId}/replies`, { content }).then(r => r.data),
 
+  getReactions: (postId: string): Promise<AuthorDTO[]> =>
+    apiClient.get(`/api/posts/${postId}/reactions`).then(r => r.data),
+
   deleteComment: (postId: string, commentId: string): Promise<void> =>
     apiClient.delete(`/api/posts/${postId}/comments/${commentId}`).then(r => r.data),
 };

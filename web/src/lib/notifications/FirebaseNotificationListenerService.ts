@@ -1,27 +1,38 @@
-import { messaging } from '../firebase';
-import { getToken, onMessage } from 'firebase/messaging';
-import { NotificationListenerService } from './NotificationListenerService';
+import { db } from '../firebase';
+import { ref, onValue, set } from 'firebase/database';
+import { AppNotification, NotificationListenerService } from './NotificationListenerService';
 
 export class FirebaseNotificationListenerService implements NotificationListenerService {
-  async requestPermission() {
-    if (!messaging) return null;
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const token = await getToken(messaging, { vapidKey: 'YOUR_VAPID_KEY_HERE' });
-        return token;
-      }
-      return null;
-    } catch (error) {
-      console.error('An error occurred while retrieving token. ', error);
-      return null;
-    }
+  subscribeToNotifications(
+    userId: string,
+    callback: (notifications: AppNotification[]) => void,
+  ): () => void {
+    const notifRef = ref(db, `notifications/${userId}`);
+
+    const unsubscribe = onValue(notifRef, (snapshot) => {
+      const notifications: AppNotification[] = [];
+      snapshot.forEach((child) => {
+        const val = child.val();
+        notifications.push({
+          id:        child.key as string,
+          type:      val.type      ?? '',
+          title:     val.title     ?? '',
+          message:   val.message   ?? '',
+          data:      val.data      ?? {},
+          read:      val.read      ?? false,
+          createdAt: val.createdAt ?? 0,
+        });
+      });
+      // Sort newest first
+      notifications.sort((a, b) => b.createdAt - a.createdAt);
+      callback(notifications);
+    });
+
+    return unsubscribe;
   }
 
-  onMessageReceived(callback: (payload: any) => void) {
-    if (!messaging) return;
-    onMessage(messaging, (payload) => {
-      callback(payload);
-    });
+  markAsRead(userId: string, notificationId: string): void {
+    const readRef = ref(db, `notifications/${userId}/${notificationId}/read`);
+    set(readRef, true).catch(console.error);
   }
 }

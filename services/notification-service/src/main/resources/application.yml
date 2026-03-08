@@ -12,7 +12,7 @@ spring:
 
 firebase:
   service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:classpath:firebase-service-account.json}
-  database-url: ${FIREBASE_DATABASE_URL:https://your-project.firebaseio.com}
+  database-url: ${FIREBASE_DATABASE_URL:https://decp-decec-default-rtdb.asia-southeast1.firebasedatabase.app/}
 
 services:
   user-service:

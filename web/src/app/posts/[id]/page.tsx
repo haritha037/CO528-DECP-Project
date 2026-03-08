@@ -56,7 +56,7 @@ export default function PostDetailPage() {
 
           {post && (
             <div className="space-y-4">
-              <PostCard post={post} onDeleted={handleDeleted} />
+              <PostCard post={post} onDeleted={handleDeleted} hideCommentSection hideViewPost />
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                 <div className="px-4 py-3 border-b border-gray-100">
                   <h2 className="font-semibold text-gray-800 text-sm">Comments</h2>
@@ -64,6 +64,7 @@ export default function PostDetailPage() {
                 <CommentSection
                   postId={post.id}
                   onCommentAdded={() => setPost(p => p ? { ...p, commentCount: p.commentCount + 1 } : p)}
+                  onCommentDeleted={(n) => setPost(p => p ? { ...p, commentCount: Math.max(0, p.commentCount - n) } : p)}
                 />
               </div>
             </div>

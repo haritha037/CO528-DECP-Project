@@ -1,6 +1,7 @@
 package com.decp.post.controller;
 
 import com.decp.post.dto.AddCommentRequest;
+import com.decp.post.dto.AuthorDTO;
 import com.decp.post.dto.CommentDTO;
 import com.decp.post.dto.CreatePostRequest;
 import com.decp.post.dto.PostDTO;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -129,6 +131,11 @@ public class PostController {
             @AuthenticationPrincipal UserPrincipal principal) {
         postService.deleteComment(id, commentId, principal.getId(), principal.getRole());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/reactions")
+    public ResponseEntity<List<AuthorDTO>> getReactors(@PathVariable String id) {
+        return ResponseEntity.ok(postService.getReactors(id));
     }
 
     // ── Stats placeholder (Phase 9) ──────────────────────────────────────────

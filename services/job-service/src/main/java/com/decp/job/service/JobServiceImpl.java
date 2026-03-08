@@ -1,11 +1,13 @@
 package com.decp.job.service;
 
+import com.decp.job.config.RabbitMQConfig;
 import com.decp.job.dto.CreateJobRequest;
 import com.decp.job.dto.JobDTO;
 import com.decp.job.entity.Job;
 import com.decp.job.repository.JobRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +24,7 @@ import java.util.UUID;
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -38,7 +42,26 @@ public class JobServiceImpl implements JobService {
         job.setApplicationDeadline(request.getApplicationDeadline());
         job.setApplicationLink(request.getApplicationLink());
         job.setStatus("ACTIVE");
-        return mapToDTO(jobRepository.save(job), userName);
+        Job saved = jobRepository.save(job);
+
+        // Publish JOB_POSTED notification to RabbitMQ
+        try {
+            Map<String, Object> message = Map.of(
+                    "type",       "JOB_POSTED",
+                    "jobId",      saved.getId().toString(),
+                    "title",      saved.getTitle(),
+                    "company",    saved.getCompany(),
+                    "postedById", userId
+            );
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.NOTIFICATION_EXCHANGE,
+                    RabbitMQConfig.ROUTING_KEY_JOB_POSTED,
+                    message);
+        } catch (Exception e) {
+            log.warn("Failed to publish job.posted notification: {}", e.getMessage());
+        }
+
+        return mapToDTO(saved, userName);
     }
 
     @Override

@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import AppLayout from '@/components/layout/AppLayout';
 import UserAvatar from '@/components/shared/UserAvatar';
@@ -11,15 +11,20 @@ import RoleBadge from '@/components/shared/RoleBadge';
 import PostCard from '@/components/post/PostCard';
 import { userApi, UserDTO } from '@/lib/api/userApi';
 import { postApi, PostDTO } from '@/lib/api/postApi';
+import { useAuth } from '@/contexts/AuthContext';
+import { messagingService } from '@/lib/messaging';
 
 export default function UserProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const firebaseUid = params.firebaseUid as string;
+  const { user } = useAuth();
 
   const [profile, setProfile] = useState<UserDTO | null>(null);
   const [posts, setPosts] = useState<PostDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [startingConv, setStartingConv] = useState(false);
 
   useEffect(() => {
     if (!firebaseUid) return;
@@ -27,13 +32,26 @@ export default function UserProfilePage() {
       userApi.getUserByUid(firebaseUid),
       postApi.getPostsByUser(firebaseUid),
     ])
-      .then(([user, page]) => {
-        setProfile(user);
+      .then(([u, page]) => {
+        setProfile(u);
         setPosts(page.content);
       })
       .catch(() => setError('User not found.'))
       .finally(() => setLoading(false));
   }, [firebaseUid]);
+
+  const handleMessageClick = async () => {
+    if (!user?.uid) return;
+    setStartingConv(true);
+    try {
+      await messagingService.ensureConversation(user.uid, firebaseUid);
+      router.push(`/messages?with=${firebaseUid}`);
+    } finally {
+      setStartingConv(false);
+    }
+  };
+
+  const isOwnProfile = user?.uid === firebaseUid;
 
   return (
     <ProtectedRoute>
@@ -57,6 +75,22 @@ export default function UserProfilePage() {
                       roleBadge={profile.roleBadge}
                       size="lg"
                     />
+                    {!isOwnProfile && (
+                      <button
+                        onClick={handleMessageClick}
+                        disabled={startingConv}
+                        className="mb-1 flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-60 transition-colors"
+                      >
+                        {startingConv ? (
+                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                          </svg>
+                        )}
+                        Message
+                      </button>
+                    )}
                   </div>
 
                   <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
