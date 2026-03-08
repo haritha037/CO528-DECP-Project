@@ -11,7 +11,24 @@ import { AuthService, AuthUser } from './AuthService';
 export class FirebaseAuthService implements AuthService {
   async signIn(email: string, password: string): Promise<AuthUser> {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return this.mapUser(userCredential.user);
+    const user = userCredential.user;
+
+    // Sync the role stored in PostgreSQL into Firebase custom claims.
+    // This is necessary for users created via seed data or whose claims
+    // were never set (e.g. the bootstrap admin).
+    try {
+      const token = await user.getIdToken();
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile/sync-claims`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Force-refresh so the next getIdToken() returns a token with the updated role claim.
+      await user.getIdToken(true);
+    } catch {
+      // Non-fatal: if sync fails (e.g. user not in DB yet) proceed with login anyway.
+    }
+
+    return this.mapUser(user);
   }
 
   async signOut(): Promise<void> {

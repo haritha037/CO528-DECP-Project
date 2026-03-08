@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import org.springframework.http.HttpMethod;
+
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -36,6 +38,11 @@ public class FirebaseAuthGatewayFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+
+        // Let CORS preflight through — the gateway's globalcors config handles it
+        if (HttpMethod.OPTIONS.equals(request.getMethod())) {
+            return chain.filter(exchange);
+        }
 
         if (isSecured.test(request)) {
             if (this.isAuthMissing(request)) {

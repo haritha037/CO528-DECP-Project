@@ -29,6 +29,11 @@ services:
   post-service:
     url: ${POST_SERVICE_URL:http://localhost:8082}
 
+logging:
+  level:
+    "[com.decp.user.security]": DEBUG
+    "[org.springframework.security]": DEBUG
+
 management:
   endpoints:
     web:

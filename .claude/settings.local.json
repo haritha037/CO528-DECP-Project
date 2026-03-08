@@ -6,7 +6,12 @@
       "Bash(nslookup registry-1.docker.io 8.8.8.8)",
       "Bash(ipconfig.exe)",
       "Bash(sudo ls -la /etc/docker/)",
-      "Bash(docker run --rm alpine nslookup registry-1.docker.io)"
+      "Bash(docker run --rm alpine nslookup registry-1.docker.io)",
+      "Bash(BASE=\"d:/projects/soft-mini-project/DECP/services\")",
+      "Bash(rm -rf \"$BASE/post-service/src/main/java/com/decp/postservice\")",
+      "Bash(rm -rf \"$BASE/job-service/src/main/java/com/decp/jobservice\")",
+      "Bash(rm -rf \"$BASE/event-service/src/main/java/com/decp/eventservice\")",
+      "Bash(rm -rf \"$BASE/notification-service/src/main/java/com/decp/notificationservice\")"
     ],
     "deny": [],
     "ask": []
