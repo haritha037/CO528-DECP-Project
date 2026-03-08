@@ -160,4 +160,17 @@ public class JobServiceImpl implements JobService {
                 .updatedAt(job.getUpdatedAt())
                 .build();
     }
+
+    @Override
+    public Map<String, Object> getStats() {
+        return Map.of(
+            "totalJobs",   jobRepository.count(),
+            "activeJobs",  jobRepository.countByStatus("ACTIVE"),
+            "closedJobs",  jobRepository.countByStatus("CLOSED"),
+            "fullTime",    jobRepository.countByJobType("FULL_TIME"),
+            "partTime",    jobRepository.countByJobType("PART_TIME"),
+            "internship",  jobRepository.countByJobType("INTERNSHIP"),
+            "contract",    jobRepository.countByJobType("CONTRACT")
+        );
+    }
 }

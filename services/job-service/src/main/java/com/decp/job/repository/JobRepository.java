@@ -29,4 +29,8 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
             Pageable pageable);
 
     Page<Job> findByPostedByOrderByCreatedAtDesc(String postedBy, Pageable pageable);
+
+    long countByStatus(String status);
+
+    long countByJobType(String jobType);
 }

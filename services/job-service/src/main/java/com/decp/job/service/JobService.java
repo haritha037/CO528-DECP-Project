@@ -5,6 +5,8 @@ import com.decp.job.dto.JobDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Map;
+
 public interface JobService {
 
     JobDTO createJob(String userId, String userName, CreateJobRequest request);
@@ -20,4 +22,6 @@ public interface JobService {
     Page<JobDTO> getMyPosts(String userId, Pageable pageable);
 
     JobDTO closeJob(String jobId, String userId, String userRole);
+
+    Map<String, Object> getStats();
 }

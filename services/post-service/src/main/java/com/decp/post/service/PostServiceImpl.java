@@ -350,6 +350,15 @@ public class PostServiceImpl implements PostService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public java.util.Map<String, Object> getStats() {
+        return java.util.Map.of(
+            "totalPosts",    postRepository.count(),
+            "totalReactions", reactionRepository.count(),
+            "totalComments", commentRepository.count()
+        );
+    }
+
     private void publishEvent(NotificationEvent event, String routingKey) {
         try {
             rabbitTemplate.convertAndSend(RabbitMQConfig.NOTIFICATION_EXCHANGE, routingKey, event);

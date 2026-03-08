@@ -6,6 +6,7 @@ import com.decp.post.dto.CommentDTO;
 import com.decp.post.dto.CreatePostRequest;
 import com.decp.post.dto.PostDTO;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -34,4 +35,6 @@ public interface PostService {
     void deleteComment(String postId, String commentId, String userId, String userRole);
 
     List<AuthorDTO> getReactors(String postId);
+
+    Map<String, Object> getStats();
 }

@@ -18,6 +18,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
+    long countByRole(String role);
+
+    long countByProfileCompleteTrue();
+
     @Query("SELECT u FROM User u WHERE " +
            "(cast(:q as string) IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', cast(:q as string), '%')) " +
            "   OR LOWER(u.email) LIKE LOWER(CONCAT('%', cast(:q as string), '%'))) " +

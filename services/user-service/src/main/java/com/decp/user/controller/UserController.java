@@ -109,6 +109,6 @@ public class UserController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> getStats() {
-        return ResponseEntity.ok(Map.of("message", "Stats endpoint — implemented in Phase 9"));
+        return ResponseEntity.ok(userService.getStats());
     }
 }

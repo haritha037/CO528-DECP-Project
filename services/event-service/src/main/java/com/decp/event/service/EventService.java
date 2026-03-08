@@ -5,6 +5,7 @@ import com.decp.event.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Map;
 import java.util.UUID;
 
 public interface EventService {
@@ -22,4 +23,6 @@ public interface EventService {
     EventDTO rsvp(UUID id, RsvpRequest request, UserPrincipal currentUser);
 
     Page<AttendeeDTO> getAttendees(UUID id, Pageable pageable);
+
+    Map<String, Object> getStats();
 }

@@ -175,4 +175,16 @@ public class EventServiceImpl implements EventService {
                 .myRsvpStatus(myRsvpStatus)
                 .build();
     }
+
+    @Override
+    public java.util.Map<String, Object> getStats() {
+        return java.util.Map.of(
+            "totalEvents",    eventRepository.count(),
+            "upcoming",       eventRepository.countByStatus("UPCOMING"),
+            "ongoing",        eventRepository.countByStatus("ONGOING"),
+            "completed",      eventRepository.countByStatus("COMPLETED"),
+            "cancelled",      eventRepository.countByStatus("CANCELLED"),
+            "totalRsvps",     eventRsvpRepository.count()
+        );
+    }
 }

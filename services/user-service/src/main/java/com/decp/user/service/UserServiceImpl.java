@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -127,6 +129,17 @@ public class UserServiceImpl implements UserService {
         User user = findByFirebaseUid(firebaseUid);
         identityProviderService.setCustomUserClaims(firebaseUid, user.getRole());
         log.info("Synced Firebase claims for uid={} role={}", firebaseUid, user.getRole());
+    }
+
+    @Override
+    public Map<String, Object> getStats() {
+        return Map.of(
+            "totalUsers",      userRepository.count(),
+            "students",        userRepository.countByRole("STUDENT"),
+            "alumni",          userRepository.countByRole("ALUMNI"),
+            "admins",          userRepository.countByRole("ADMIN"),
+            "profileComplete", userRepository.countByProfileCompleteTrue()
+        );
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────

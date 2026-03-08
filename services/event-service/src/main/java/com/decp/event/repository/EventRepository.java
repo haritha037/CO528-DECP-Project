@@ -21,4 +21,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             @Param("status")    String status,
             @Param("eventType") String eventType,
             Pageable pageable);
+
+    long countByStatus(String status);
 }

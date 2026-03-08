@@ -105,7 +105,8 @@ public class JobController {
     // ── Stats placeholder (Phase 9) ──────────────────────────────────────────
 
     @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> getStats() {
-        return ResponseEntity.ok(Map.of("message", "Stats endpoint — implemented in Phase 9"));
+        return ResponseEntity.ok(jobService.getStats());
     }
 }

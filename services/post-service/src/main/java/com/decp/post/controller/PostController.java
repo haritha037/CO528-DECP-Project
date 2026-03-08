@@ -141,7 +141,8 @@ public class PostController {
     // ── Stats placeholder (Phase 9) ──────────────────────────────────────────
 
     @GetMapping("/stats")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> getStats() {
-        return ResponseEntity.ok(Map.of("message", "Stats endpoint — implemented in Phase 9"));
+        return ResponseEntity.ok(postService.getStats());
     }
 }
