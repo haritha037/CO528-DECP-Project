@@ -31,3 +31,5 @@ COPY --from=build /app/public ./public
 EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server.js"]
+
+#web docker file comment added. test
