@@ -1,0 +1,130 @@
+services:
+  user-service:
+    build: ../../services/user-service
+    container_name: decp-user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      USER_DB_URL: ${USER_DB_URL:-jdbc:postgresql://postgres:5432/user_db}
+      USER_DB_USERNAME: ${USER_DB_USERNAME:-decp}
+      USER_DB_PASSWORD: ${USER_DB_PASSWORD:-decp_password}
+      FIREBASE_SERVICE_ACCOUNT_PATH: file:/app/shared/firebase-service-account.json
+      SERVER_PORT: "8081"
+    volumes:
+      - ../../services/shared:/app/shared
+    restart: on-failure
+
+  post-service:
+    build: ../../services/post-service
+    container_name: decp-post-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      POST_DB_URL: ${POST_DB_URL:-jdbc:postgresql://postgres:5432/post_db}
+      POST_DB_USERNAME: ${POST_DB_USERNAME:-decp}
+      POST_DB_PASSWORD: ${POST_DB_PASSWORD:-decp_password}
+      SPRING_RABBITMQ_HOST: ${SPRING_RABBITMQ_HOST:-rabbitmq}
+      USER_SERVICE_URL: http://user-service:8081
+      SERVER_PORT: "8082"
+    restart: on-failure
+
+  job-service:
+    build: ../../services/job-service
+    container_name: decp-job-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      JOB_DB_URL: ${JOB_DB_URL:-jdbc:postgresql://postgres:5432/job_db}
+      JOB_DB_USERNAME: ${JOB_DB_USERNAME:-decp}
+      JOB_DB_PASSWORD: ${JOB_DB_PASSWORD:-decp_password}
+      SERVER_PORT: "8083"
+    restart: on-failure
+
+  event-service:
+    build: ../../services/event-service
+    container_name: decp-event-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      EVENT_DB_URL: ${EVENT_DB_URL:-jdbc:postgresql://postgres:5432/event_db}
+      EVENT_DB_USERNAME: ${EVENT_DB_USERNAME:-decp}
+      EVENT_DB_PASSWORD: ${EVENT_DB_PASSWORD:-decp_password}
+      SPRING_RABBITMQ_HOST: ${SPRING_RABBITMQ_HOST:-rabbitmq}
+      SERVER_PORT: "8084"
+    restart: on-failure
+
+  notification-service:
+    build: ../../services/notification-service
+    container_name: decp-notification-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: ${SPRING_RABBITMQ_HOST:-rabbitmq}
+      USER_SERVICE_URL: http://user-service:8081
+      FIREBASE_SERVICE_ACCOUNT_PATH: file:/app/shared/firebase-service-account.json
+      SERVER_PORT: "8085"
+    volumes:
+      - ../../services/shared:/app/shared
+    restart: on-failure
+
+  api-gateway:
+    build: ../../services/api-gateway
+    container_name: decp-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - post-service
+      - job-service
+      - event-service
+      - notification-service
+    environment:
+      USER_SERVICE_URL: http://user-service:8081
+      POST_SERVICE_URL: http://post-service:8082
+      JOB_SERVICE_URL: http://job-service:8083
+      EVENT_SERVICE_URL: http://event-service:8084
+      NOTIFICATION_SERVICE_URL: http://notification-service:8085
+      FIREBASE_SERVICE_ACCOUNT_PATH: file:/app/shared/firebase-service-account.json
+      SERVER_PORT: "8080"
+    volumes:
+      - ../../services/shared:/app/shared
+    restart: on-failure
+
+  web:
+    build:
+      context: ../../web
+      args:
+        - NEXT_PUBLIC_FIREBASE_API_KEY=${NEXT_PUBLIC_FIREBASE_API_KEY}
+        - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+        - NEXT_PUBLIC_FIREBASE_PROJECT_ID=${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
+        - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}
+        - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}
+        - NEXT_PUBLIC_FIREBASE_APP_ID=${NEXT_PUBLIC_FIREBASE_APP_ID}
+        - NEXT_PUBLIC_FIREBASE_DATABASE_URL=${NEXT_PUBLIC_FIREBASE_DATABASE_URL}
+    container_name: decp-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../../web/.env.local
+    depends_on:
+      - api-gateway
+    restart: on-failure

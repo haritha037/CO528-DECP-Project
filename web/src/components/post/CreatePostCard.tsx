@@ -11,7 +11,7 @@ interface AuthorProfile {
   name: string;
   initials: string;
   profilePictureUrl?: string;
-  roleBadge?: string;
+  roleBadge?: 'blue' | 'gold' | 'red';
 }
 
 interface CreatePostCardProps {

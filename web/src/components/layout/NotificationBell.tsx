@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { notificationListenerService, AppNotification } from '@/lib/notifications';
-import { notificationApi } from '@/lib/api/notificationApi';
 
 export default function NotificationBell() {
   const { user } = useAuth();
@@ -37,10 +36,10 @@ export default function NotificationBell() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const handleMarkAllRead = async () => {
-    await notificationApi.markAllRead();
-    // Optimistic update: mark all local as read
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const handleMarkAllRead = () => {
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    notificationListenerService.markAllAsRead(user!.uid, unreadIds);
+    setOpen(false);
   };
 
   const handleNotificationClick = (n: AppNotification) => {
@@ -75,7 +74,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute bottom-11 left-0 w-80 bg-white rounded-xl border border-gray-200 shadow-lg z-50 overflow-hidden">
+        <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl border border-gray-200 shadow-lg z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <span className="text-sm font-semibold text-gray-800">Notifications</span>
             {unreadCount > 0 && (

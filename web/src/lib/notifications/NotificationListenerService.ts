@@ -15,4 +15,5 @@ export interface NotificationListenerService {
   ): () => void;
 
   markAsRead(userId: string, notificationId: string): void;
+  markAllAsRead(userId: string, notificationIds: string[]): void;
 }

@@ -1,0 +1,101 @@
+version: "3"
+
+dotenv: [".env.prod"]
+
+vars:
+  GOOS: "{{default OS .GOOS}}"
+  MVNW: '{{if eq .GOOS "windows"}}mvnw.cmd{{else}}./mvnw{{end}}'
+  INFRA_DC: "deployment/docker-compose/infra.yml"
+  APPS_DC: "deployment/docker-compose/apps.yml"
+
+tasks:
+  # ── Docker Compose ──────────────────────────────────────────────
+
+  build:
+    desc: Build all Docker images (injects web/.env.local for Next.js)
+    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} --env-file web/.env.local build
+
+  up:
+    desc: Start all services detached (local Postgres)
+    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} up -d
+
+  up:prod:
+    desc: Start all services with Neon DBs (.env.prod injected)
+    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} --env-file .env.prod up -d
+
+  down:
+    desc: Stop and remove all containers
+    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} down
+
+  logs:
+    desc: "Follow logs for a service  →  task logs -- post-service"
+    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} logs -f {{.CLI_ARGS}}
+
+  up:infra:
+    desc: Start infrastructure only (Postgres + RabbitMQ)
+    cmd: docker compose -f {{.INFRA_DC}} up -d
+
+  # ── Local Spring Boot — all services ────────────────────────────
+
+  run:all:
+    desc: Start all 6 services in parallel (local defaults, no Docker)
+    deps:
+      - run:gateway
+      - run:user
+      - run:post
+      - run:job
+      - run:event
+      - run:notification
+
+  stop:local:
+    desc: Kill all locally running services (ports 8080-8085)
+    cmds:
+      - platforms: [linux, darwin]
+        cmd: |
+          for port in 8080 8081 8082 8083 8084 8085; do
+            pids=$(lsof -ti tcp:$port 2>/dev/null || true)
+            if [ -n "$pids" ]; then
+              kill $pids && echo "Killed port $port"
+            else
+              echo "Port $port not in use"
+            fi
+          done
+      - platforms: [windows]
+        cmd: |
+          for %p in (8080,8081,8082,8083,8084,8085) do @(
+            for /f "tokens=5" %a in ('netstat -aon ^| findstr ":%p "') do @(
+              taskkill /F /PID %a >nul 2>&1 && echo Killed port %p
+            )
+          )
+
+  # ── Local Spring Boot — individual services ──────────────────────
+
+  run:gateway:
+    desc: Run api-gateway locally
+    dir: services/api-gateway
+    cmd: "{{.MVNW}} spring-boot:run"
+
+  run:user:
+    desc: Run user-service locally
+    dir: services/user-service
+    cmd: "{{.MVNW}} spring-boot:run"
+
+  run:post:
+    desc: Run post-service locally
+    dir: services/post-service
+    cmd: "{{.MVNW}} spring-boot:run"
+
+  run:job:
+    desc: Run job-service locally
+    dir: services/job-service
+    cmd: "{{.MVNW}} spring-boot:run"
+
+  run:event:
+    desc: Run event-service locally
+    dir: services/event-service
+    cmd: "{{.MVNW}} spring-boot:run"
+
+  run:notification:
+    desc: Run notification-service locally
+    dir: services/notification-service
+    cmd: "{{.MVNW}} spring-boot:run"

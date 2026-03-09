@@ -22,6 +22,9 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const db = getDatabase(app);
-export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+export const messaging =
+  typeof window !== 'undefined' && 'serviceWorker' in navigator && window.isSecureContext
+    ? getMessaging(app)
+    : null;
 
 export default app;

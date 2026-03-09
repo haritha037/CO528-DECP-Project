@@ -5,9 +5,9 @@ spring:
   application:
     name: event-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/event_db}
-    username: ${SPRING_DATASOURCE_USERNAME:decp}
-    password: ${SPRING_DATASOURCE_PASSWORD:decp_password}
+    url: ${EVENT_DB_URL:jdbc:postgresql://localhost:5432/event_db}
+    username: ${EVENT_DB_USERNAME:decp}
+    password: ${EVENT_DB_PASSWORD:decp_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

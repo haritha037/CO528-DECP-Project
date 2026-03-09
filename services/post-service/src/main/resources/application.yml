@@ -5,9 +5,9 @@ spring:
   application:
     name: post-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/post_db}
-    username: ${SPRING_DATASOURCE_USERNAME:decp}
-    password: ${SPRING_DATASOURCE_PASSWORD:decp_password}
+    url: ${POST_DB_URL:jdbc:postgresql://localhost:5432/post_db}
+    username: ${POST_DB_USERNAME:decp}
+    password: ${POST_DB_PASSWORD:decp_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

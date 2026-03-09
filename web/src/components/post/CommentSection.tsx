@@ -6,6 +6,7 @@ import UserAvatar from '@/components/shared/UserAvatar';
 import RoleBadge from '@/components/shared/RoleBadge';
 import { CommentDTO, postApi } from '@/lib/api/postApi';
 import { useAuth } from '@/contexts/AuthContext';
+import { userApi, UserDTO } from '@/lib/api/userApi';
 
 interface CommentSectionProps {
   postId: string;
@@ -15,6 +16,7 @@ interface CommentSectionProps {
 
 export default function CommentSection({ postId, onCommentAdded, onCommentDeleted }: CommentSectionProps) {
   const { user } = useAuth();
+  const [profile, setProfile] = useState<UserDTO | null>(null);
   const [comments, setComments] = useState<CommentDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
@@ -28,6 +30,10 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [postId]);
+
+  useEffect(() => {
+    userApi.getMyProfile().then(setProfile).catch(() => {});
+  }, []);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -214,8 +220,10 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
       {/* New comment input */}
       <div className="flex gap-3 pt-2 border-t border-gray-100">
         <UserAvatar
-          name={user?.email || '?'}
-          initials={(user?.email?.[0] || '?').toUpperCase()}
+          name={profile?.name || user?.email || '?'}
+          initials={profile?.initials || (user?.email?.[0] || '?').toUpperCase()}
+          profilePictureUrl={profile?.profilePictureUrl}
+          roleBadge={profile?.roleBadge}
           size="sm"
         />
         <div className="flex-1 flex gap-2">

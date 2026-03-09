@@ -35,4 +35,11 @@ export class FirebaseNotificationListenerService implements NotificationListener
     const readRef = ref(db, `notifications/${userId}/${notificationId}/read`);
     set(readRef, true).catch(console.error);
   }
+
+  markAllAsRead(userId: string, notificationIds: string[]): void {
+    notificationIds.forEach(id => {
+      const readRef = ref(db, `notifications/${userId}/${id}/read`);
+      set(readRef, true).catch(console.error);
+    });
+  }
 }
