@@ -11,7 +11,7 @@ public class UpdateProfileRequest {
 
     private String bio;
     private String department;
-    private Integer graduationYear;
+    private String batch;
     private String profilePictureUrl;
     private String linkedinUrl;
     private String githubUrl;

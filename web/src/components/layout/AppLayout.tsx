@@ -1,30 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { userApi, UserDTO } from '@/lib/api/userApi';
 import NotificationBell from './NotificationBell';
+import UserAvatar from '@/components/shared/UserAvatar';
 import { messagingService } from '@/lib/messaging';
 
 const navLinks = [
-  { href: '/feed',     label: 'Feed',      icon: '🏠' },
-  { href: '/jobs',     label: 'Jobs',       icon: '💼' },
-  { href: '/events',   label: 'Events',     icon: '📅' },
-  { href: '/messages', label: 'Messages',   icon: '💬' },
-  { href: '/users',    label: 'Directory',  icon: '👥' },
-  { href: '/profile',  label: 'Profile',    icon: '👤' },
+  { href: '/feed',     label: 'Feed'      },
+  { href: '/jobs',     label: 'Jobs'      },
+  { href: '/events',   label: 'Events'    },
+  { href: '/messages', label: 'Messages'  },
+  { href: '/users',    label: 'Directory' },
 ];
 
 const adminLinks = [
-  { href: '/admin/users',      label: 'Manage Users',  icon: '⚙️' },
-  { href: '/admin/dashboard',  label: 'Analytics',     icon: '📊' },
+  { href: '/admin/users',     label: 'Manage Users' },
+  { href: '/admin/dashboard', label: 'Analytics'    },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [profile, setProfile] = useState<UserDTO | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    userApi.getMyProfile().then(setProfile).catch(() => {});
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -35,96 +44,128 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return unsub;
   }, [user?.uid]);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* ── Desktop Sidebar ─────────────────────────────────── */}
-      <aside className="hidden md:flex md:flex-col md:w-56 bg-white border-r border-gray-200 fixed h-full z-10">
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-blue-600">DECP</h1>
-          <p className="text-xs text-gray-400">Department Platform</p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* ── Top Navbar ──────────────────────────────────────── */}
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-20">
+        <div className="px-4 h-14 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/feed" className="text-xl font-bold text-blue-600 cursor-pointer">
+            DECP
+          </Link>
 
-        {/* Nav links */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive(link.href)
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <span>{link.icon}</span>
-              <span className="flex-1">{link.label}</span>
-              {link.href === '/messages' && unreadMessages > 0 && (
-                <span className="bg-blue-600 text-white text-[11px] font-bold rounded-full h-5 min-w-[1.25rem] flex items-center justify-center px-1">
-                  {unreadMessages > 99 ? '99+' : unreadMessages}
-                </span>
-              )}
-            </Link>
-          ))}
+          {/* Nav links + right controls */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  isActive(link.href)
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {link.label}
+                {link.href === '/messages' && unreadMessages > 0 && (
+                  <span className="bg-blue-600 text-white text-[11px] font-bold rounded-full h-5 min-w-[1.25rem] flex items-center justify-center px-1">
+                    {unreadMessages > 99 ? '99+' : unreadMessages}
+                  </span>
+                )}
+              </Link>
+            ))}
 
-          {user?.role === 'ADMIN' && (
-            <>
-              <div className="pt-3 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Admin
-              </div>
-              {adminLinks.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(link.href)
-                      ? 'bg-red-50 text-red-700'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <span>{link.icon}</span>
-                  {link.label}
-                </Link>
-              ))}
-            </>
-          )}
-        </nav>
+            <div className="w-px h-5 bg-gray-200 mx-2" />
 
-        {/* User info + sign out */}
-        <div className="p-3 border-t border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-500 truncate flex-1">{user?.email}</span>
             <NotificationBell />
-          </div>
 
-          <button
-            onClick={signOut}
-            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          >
-            Sign out
-          </button>
+            {/* Avatar + dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(prev => !prev)}
+                className="rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+              >
+                {profile ? (
+                  <UserAvatar
+                    name={profile.name}
+                    initials={profile.initials}
+                    profilePictureUrl={profile.profilePictureUrl}
+                    roleBadge={profile.roleBadge as any}
+                    size="md"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+                )}
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-30">
+                  <Link
+                    href="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    Profile
+                  </Link>
+
+                  {user?.role === 'ADMIN' && (
+                    <>
+                      <div className="my-1 border-t border-gray-100" />
+                      {adminLinks.map(link => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </>
+                  )}
+
+                  <div className="my-1 border-t border-gray-100" />
+                  <button
+                    onClick={() => { signOut(); setDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </aside>
+      </header>
 
       {/* ── Main content ────────────────────────────────────── */}
-      <main className="flex-1 md:ml-56 pb-16 md:pb-0">
+      <main className="pt-14 pb-16 md:pb-0">
         {children}
       </main>
 
       {/* ── Mobile Bottom Tab Bar ───────────────────────────── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="flex justify-around py-2">
-          {navLinks.slice(0, 5).map(link => (
+          {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
-              className={`relative flex flex-col items-center gap-0.5 px-2 py-1 text-xs transition-colors ${
+              className={`relative flex flex-col items-center gap-0.5 px-2 py-1 text-xs transition-colors cursor-pointer ${
                 isActive(link.href) ? 'text-blue-600' : 'text-gray-500'
               }`}
             >
-              <span className="text-lg leading-none">{link.icon}</span>
               {link.href === '/messages' && unreadMessages > 0 && (
                 <span className="absolute -top-0.5 right-0 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                   {unreadMessages > 9 ? '9+' : unreadMessages}

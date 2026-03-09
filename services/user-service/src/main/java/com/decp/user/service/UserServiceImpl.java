@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
         user.setName(request.getName());
         user.setBio(request.getBio());
         user.setDepartment(request.getDepartment());
-        user.setGraduationYear(request.getGraduationYear());
+        user.setBatch(request.getBatch());
         user.setProfilePictureUrl(request.getProfilePictureUrl());
         user.setLinkedinUrl(request.getLinkedinUrl());
         user.setGithubUrl(request.getGithubUrl());
@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .bio(user.getBio())
                 .department(user.getDepartment())
-                .graduationYear(user.getGraduationYear())
+                .batch(user.getBatch())
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole())
                 .roleBadge(roleBadge(user.getRole()))

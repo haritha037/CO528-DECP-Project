@@ -17,7 +17,7 @@ export default function ProfileSetupPage() {
     name: '',
     bio: '',
     department: '',
-    graduationYear: '',
+    batch: '',
     linkedinUrl: '',
     githubUrl: '',
     password: '',
@@ -58,7 +58,7 @@ export default function ProfileSetupPage() {
         name: formData.name,
         bio: formData.bio || undefined,
         department: formData.department || undefined,
-        graduationYear: formData.graduationYear ? parseInt(formData.graduationYear) : undefined,
+        batch: formData.batch || undefined,
         profilePictureUrl,
         linkedinUrl: formData.linkedinUrl || undefined,
         githubUrl: formData.githubUrl || undefined,
@@ -122,12 +122,12 @@ export default function ProfileSetupPage() {
               </div>
               <div className="relative">
                 <input
-                  type="number" name="graduationYear" id="graduationYear" value={formData.graduationYear} onChange={handleChange} min="1990" max="2040"
+                  type="text" name="batch" id="batch" value={formData.batch} onChange={handleChange}
                   className="peer w-full px-4 pt-6 pb-2 text-gray-900 dark:text-white bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all duration-200 placeholder-transparent hover:border-gray-300 dark:hover:border-gray-500"
-                  placeholder="Graduation Year"
+                  placeholder="Batch"
                 />
-                <label htmlFor="graduationYear" className="absolute left-4 top-2 text-xs font-medium text-gray-500 dark:text-gray-400 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-blue-600 dark:peer-focus:text-blue-400 transition-all duration-200 cursor-text">
-                  Graduation Year
+                <label htmlFor="batch" className="absolute left-4 top-2 text-xs font-medium text-gray-500 dark:text-gray-400 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-blue-600 dark:peer-focus:text-blue-400 transition-all duration-200 cursor-text">
+                  Batch (e.g. E20)
                 </label>
               </div>
             </div>

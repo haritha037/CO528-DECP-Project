@@ -5,7 +5,7 @@
 INSERT INTO users (firebase_uid, email, name, role, department, is_profile_complete)
 VALUES (
     '84dzuz2yppVeneQ6vFB6Gx4TBUU2',
-    'admin@decp.com',
+    'admin@gmail.com',
     'System Admin',
     'ADMIN',
     'Computer Engineering',

@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
+import { FaLinkedin, FaGithub } from 'react-icons/fa';
 import { useParams, useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import AppLayout from '@/components/layout/AppLayout';
@@ -99,8 +100,8 @@ export default function UserProfilePage() {
                     {profile.department && (
                       <span className="text-sm text-gray-500">{profile.department}</span>
                     )}
-                    {profile.graduationYear && (
-                      <span className="text-sm text-gray-400">· Class of {profile.graduationYear}</span>
+                    {profile.batch && (
+                      <span className="text-sm text-gray-400">· Batch {profile.batch}</span>
                     )}
                   </div>
 
@@ -108,14 +109,18 @@ export default function UserProfilePage() {
                     <p className="mt-4 text-gray-700 text-sm leading-relaxed">{profile.bio}</p>
                   )}
 
-                  <div className="mt-4 flex gap-4">
+                  <div className="mt-4 flex gap-3">
                     {profile.linkedinUrl && (
                       <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline">LinkedIn</a>
+                        className="text-[#0077B5] hover:text-[#005885] transition-colors" title="LinkedIn">
+                        <FaLinkedin className="w-5 h-5" />
+                      </a>
                     )}
                     {profile.githubUrl && (
                       <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-gray-700 hover:underline">GitHub</a>
+                        className="text-gray-700 hover:text-gray-900 transition-colors" title="GitHub">
+                        <FaGithub className="w-5 h-5" />
+                      </a>
                     )}
                   </div>
 

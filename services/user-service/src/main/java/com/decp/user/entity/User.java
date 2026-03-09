@@ -34,8 +34,8 @@ public class User {
     @Column(length = 255)
     private String department;
 
-    @Column(name = "graduation_year")
-    private Integer graduationYear;
+    @Column(name = "batch", length = 20)
+    private String batch;
 
     @Column(name = "profile_picture_url", length = 512)
     private String profilePictureUrl;

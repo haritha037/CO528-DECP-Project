@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import PostCard from '@/components/post/PostCard';
-import CreatePostCard from '@/components/post/CreatePostCard';
 import { PostDTO, postApi } from '@/lib/api/postApi';
 
 export default function FeedPage() {
@@ -56,15 +55,10 @@ export default function FeedPage() {
     setPosts(prev => prev.filter(p => p.id !== postId));
   };
 
-  const handlePostCreated = () => {
-    loadPosts(0, true);
-  };
-
   return (
     <ProtectedRoute>
       <AppLayout>
         <div className="max-w-2xl mx-auto py-6 px-4 space-y-4">
-          <CreatePostCard onPostCreated={handlePostCreated} />
 
           {loading ? (
             <div className="space-y-4">

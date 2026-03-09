@@ -19,7 +19,7 @@ export default function ProfileEditPage() {
     name: '',
     bio: '',
     department: '',
-    graduationYear: '',
+    batch: '',
     linkedinUrl: '',
     githubUrl: '',
     profilePictureUrl: '',
@@ -32,7 +32,7 @@ export default function ProfileEditPage() {
           name: data.name ?? '',
           bio: data.bio ?? '',
           department: data.department ?? '',
-          graduationYear: data.graduationYear ? String(data.graduationYear) : '',
+          batch: data.batch ?? '',
           linkedinUrl: data.linkedinUrl ?? '',
           githubUrl: data.githubUrl ?? '',
           profilePictureUrl: data.profilePictureUrl ?? '',
@@ -64,7 +64,7 @@ export default function ProfileEditPage() {
         name: formData.name,
         bio: formData.bio || undefined,
         department: formData.department || undefined,
-        graduationYear: formData.graduationYear ? parseInt(formData.graduationYear) : undefined,
+        batch: formData.batch || undefined,
         profilePictureUrl,
         linkedinUrl: formData.linkedinUrl || undefined,
         githubUrl: formData.githubUrl || undefined,
@@ -137,9 +137,8 @@ export default function ProfileEditPage() {
                       <input type="text" name="department" id="department" value={formData.department} onChange={handleChange} className={inputClass} />
                     </div>
                     <div>
-                      <label htmlFor="graduationYear" className="block text-sm font-medium text-gray-700">Graduation Year</label>
-                      <input type="number" name="graduationYear" id="graduationYear" value={formData.graduationYear} onChange={handleChange}
-                        min="1990" max="2040" className={inputClass} />
+                      <label htmlFor="batch" className="block text-sm font-medium text-gray-700">Batch (e.g. E20)</label>
+                      <input type="text" name="batch" id="batch" value={formData.batch} onChange={handleChange} className={inputClass} />
                     </div>
                   </div>
 

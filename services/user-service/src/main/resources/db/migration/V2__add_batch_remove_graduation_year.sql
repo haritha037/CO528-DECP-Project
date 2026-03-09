@@ -1,0 +1,2 @@
+ALTER TABLE users ADD COLUMN batch VARCHAR(20);
+ALTER TABLE users DROP COLUMN graduation_year;

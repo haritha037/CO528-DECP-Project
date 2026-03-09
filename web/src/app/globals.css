@@ -60,6 +60,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button, a, [role="button"] {
+  cursor: pointer;
+}
+
 /* Hover lift effect on cards */
 .card-hover {
   transition: transform 200ms ease, box-shadow 200ms ease;

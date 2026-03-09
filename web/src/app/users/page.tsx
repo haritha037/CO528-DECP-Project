@@ -121,8 +121,8 @@ export default function UsersDirectoryPage() {
                       {user.department && (
                         <p className="text-xs text-gray-500 mt-1 truncate">{user.department}</p>
                       )}
-                      {user.graduationYear && (
-                        <p className="text-xs text-gray-400">Class of {user.graduationYear}</p>
+                      {user.batch && (
+                        <p className="text-xs text-gray-400">Batch {user.batch}</p>
                       )}
                     </div>
                   </Link>

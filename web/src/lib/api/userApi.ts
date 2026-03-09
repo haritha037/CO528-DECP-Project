@@ -7,7 +7,7 @@ export interface UserDTO {
   name: string;
   bio?: string;
   department?: string;
-  graduationYear?: number;
+  batch?: string;
   profilePictureUrl?: string;
   role: 'STUDENT' | 'ALUMNI' | 'ADMIN';
   roleBadge: 'blue' | 'gold' | 'red';
@@ -21,7 +21,7 @@ export interface UpdateProfileRequest {
   name: string;
   bio?: string;
   department?: string;
-  graduationYear?: number;
+  batch?: string;
   profilePictureUrl?: string;
   linkedinUrl?: string;
   githubUrl?: string;

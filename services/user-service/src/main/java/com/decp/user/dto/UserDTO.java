@@ -12,7 +12,7 @@ public class UserDTO {
     private String name;
     private String bio;
     private String department;
-    private Integer graduationYear;
+    private String batch;
     private String profilePictureUrl;
     private String role;        // "STUDENT", "ALUMNI", "ADMIN"
     private String roleBadge;   // "blue", "gold", "red"

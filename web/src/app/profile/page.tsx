@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
+import { FaLinkedin, FaGithub } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -10,6 +11,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import UserAvatar from '@/components/shared/UserAvatar';
 import RoleBadge from '@/components/shared/RoleBadge';
 import PostCard from '@/components/post/PostCard';
+import CreatePostCard from '@/components/post/CreatePostCard';
 import { userApi, UserDTO } from '@/lib/api/userApi';
 import { postApi, PostDTO } from '@/lib/api/postApi';
 import { jobApi, JobDTO, JOB_TYPE_LABELS } from '@/lib/api/jobApi';
@@ -60,6 +62,12 @@ export default function ProfilePage() {
     setPosts(prev => prev.filter(p => p.id !== postId));
   };
 
+  const handlePostCreated = async () => {
+    if (!profile) return;
+    const postsPage = await postApi.getPostsByUser(profile.firebaseUid);
+    setPosts(postsPage.content);
+  };
+
   const handleCloseJob = async (jobId: string) => {
     if (!confirm('Mark this job as closed?')) return;
     setClosingJobId(jobId);
@@ -105,7 +113,7 @@ export default function ProfilePage() {
                     />
                     <Link
                       href="/profile/edit"
-                      className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="bg-white px-4 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       Edit Profile
                     </Link>
@@ -117,8 +125,8 @@ export default function ProfilePage() {
                     {profile.department && (
                       <span className="text-sm text-gray-500">{profile.department}</span>
                     )}
-                    {profile.graduationYear && (
-                      <span className="text-sm text-gray-400">· Class of {profile.graduationYear}</span>
+                    {profile.batch && (
+                      <span className="text-sm text-gray-400">· Batch {profile.batch}</span>
                     )}
                   </div>
 
@@ -126,14 +134,18 @@ export default function ProfilePage() {
                     <p className="mt-4 text-gray-700 text-sm leading-relaxed">{profile.bio}</p>
                   )}
 
-                  <div className="mt-4 flex gap-4">
+                  <div className="mt-4 flex gap-3">
                     {profile.linkedinUrl && (
                       <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline">LinkedIn</a>
+                        className="text-[#0077B5] hover:text-[#005885] transition-colors" title="LinkedIn">
+                        <FaLinkedin className="w-5 h-5" />
+                      </a>
                     )}
                     {profile.githubUrl && (
                       <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-gray-700 hover:underline">GitHub</a>
+                        className="text-gray-700 hover:text-gray-900 transition-colors" title="GitHub">
+                        <FaGithub className="w-5 h-5" />
+                      </a>
                     )}
                   </div>
 
@@ -169,7 +181,12 @@ export default function ProfilePage() {
 
                   {/* Posts tab */}
                   {activeTab === 'posts' && (
-                    <div>
+                    <div className="space-y-4">
+                      <CreatePostCard
+                        authorProfile={profile}
+                        onPostCreated={handlePostCreated}
+                        showAvatar={false}
+                      />
                       {posts.length === 0 ? (
                         <div className="text-center py-10 bg-white rounded-xl border border-gray-200">
                           <p className="text-gray-400 text-sm">No posts yet.</p>
@@ -260,8 +277,13 @@ export default function ProfilePage() {
                 </>
               ) : (
                 /* Student — just posts, no tabs */
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                <div className="space-y-4">
+                  <CreatePostCard
+                    authorProfile={profile}
+                    onPostCreated={handlePostCreated}
+                    showAvatar={false}
+                  />
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                     Posts · {posts.length}
                   </h2>
                   {posts.length === 0 ? (
