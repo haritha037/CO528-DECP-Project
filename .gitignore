@@ -24,7 +24,9 @@ build/
 # Environment
 .env
 .env.local
+.env.prod
 .env.*.local
+.env.*
 
 # Firebase
 firebase-service-account.json
