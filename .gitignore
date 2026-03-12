@@ -46,7 +46,7 @@ Thumbs.db
 .dockerignore
 
 # Kubernetes secrets (never commit these)
-k8s/secrets.yaml
+deployment/k8s/secrets.yaml
 
 # Create admin
 create-admin.js
