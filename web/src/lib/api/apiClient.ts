@@ -2,7 +2,7 @@ import axios from 'axios';
 import { authService } from '@/lib/auth';
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080',
 });
 
 apiClient.interceptors.request.use(async (config) => {
