@@ -151,16 +151,16 @@ export default function MessagesPage() {
         <div className="flex h-[calc(100vh-0px)] md:h-screen overflow-hidden">
 
           {/* ── Left panel: conversation list ── */}
-          <div className={`${showThread ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-gray-200 bg-white`}>
-            <div className="px-4 py-3 border-b border-gray-200">
-              <h1 className="text-lg font-semibold text-gray-900 mb-2">Messages</h1>
+          <div className={`${showThread ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors`}>
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Messages</h1>
               {/* Search input */}
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search people…"
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400"
+                className="w-full text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400 transition-colors"
               />
             </div>
 
@@ -176,7 +176,7 @@ export default function MessagesPage() {
                     <button
                       key={u.firebaseUid}
                       onClick={() => handleStartConversation(u)}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-800"
                     >
                       <UserAvatar
                         name={u.name}
@@ -186,8 +186,8 @@ export default function MessagesPage() {
                         size="md"
                       />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{u.name}</p>
-                        <p className="text-xs text-gray-400 truncate">{u.department || u.role}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{u.name}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{u.department || u.role}</p>
                       </div>
                     </button>
                   ))}
@@ -208,7 +208,7 @@ export default function MessagesPage() {
                       <button
                         key={conv.conversationId}
                         onClick={() => selectConversation(conv.conversationId, conv.otherUid)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${isSelected ? 'bg-blue-50' : ''}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-800 ${isSelected ? 'bg-blue-50 dark:bg-blue-500/15' : ''}`}
                       >
                         <div className="shrink-0">
                           <UserAvatar
@@ -221,13 +221,13 @@ export default function MessagesPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-900 truncate">
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                               {profile?.name || '…'}
                             </span>
-                            <span className="text-xs text-gray-400 shrink-0 ml-2">{timeAgo(conv.lastMessageAt)}</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0 ml-2">{timeAgo(conv.lastMessageAt)}</span>
                           </div>
                           <div className="flex items-center justify-between mt-0.5">
-                            <span className="text-xs text-gray-500 truncate">{conv.lastMessage || 'Say hello!'}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{conv.lastMessage || 'Say hello!'}</span>
                             {conv.unreadCount > 0 && (
                               <span className="ml-2 shrink-0 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                                 {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
@@ -244,22 +244,22 @@ export default function MessagesPage() {
           </div>
 
           {/* ── Right panel: message thread ── */}
-          <div className={`${showThread ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-white`}>
+          <div className={`${showThread ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-white dark:bg-gray-950 transition-colors`}>
             {!selectedConvId ? (
               <div className="flex-1 flex items-center justify-center text-center px-4">
                 <div>
                   <div className="text-4xl mb-3">💬</div>
-                  <p className="text-gray-500 text-sm">Select a conversation or</p>
-                  <p className="text-gray-500 text-sm">search for someone to start messaging.</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Select a conversation or</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">search for someone to start messaging.</p>
                 </div>
               </div>
             ) : (
               <>
                 {/* Thread header */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-800">
                   <button
                     onClick={() => setShowThread(false)}
-                    className="md:hidden text-gray-500 hover:text-gray-700 mr-1"
+                    className="md:hidden text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mr-1"
                     aria-label="Back"
                   >
                     ←
@@ -273,7 +273,7 @@ export default function MessagesPage() {
                         roleBadge={otherProfile.roleBadge}
                         size="sm"
                       />
-                      <span className="font-semibold text-gray-900 text-sm">{otherProfile.name}</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{otherProfile.name}</span>
                     </Link>
                   ) : (
                     <span className="text-sm text-gray-400">Loading…</span>
@@ -293,7 +293,7 @@ export default function MessagesPage() {
                           <div className={`px-4 py-2 rounded-2xl text-sm ${
                             isMine
                               ? 'bg-blue-600 text-white rounded-br-sm'
-                              : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm'
                           }`}>
                             {msg.text}
                           </div>
@@ -308,7 +308,7 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Input */}
-                <div className="px-4 py-3 border-t border-gray-200 flex gap-2">
+                <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex gap-2">
                   <input
                     type="text"
                     value={inputText}
@@ -320,7 +320,7 @@ export default function MessagesPage() {
                       }
                     }}
                     placeholder="Type a message…"
-                    className="flex-1 text-sm border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-400"
+                    className="flex-1 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-400 transition-colors"
                     disabled={sending}
                   />
                   <button

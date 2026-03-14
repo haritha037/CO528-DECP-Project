@@ -59,7 +59,7 @@ export default function UsersDirectoryPage() {
     <ProtectedRoute>
       <AppLayout>
         <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Directory</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Directory</h1>
 
           {/* Filters */}
           <form onSubmit={handleSearch} className="flex flex-wrap gap-3 mb-6">
@@ -68,12 +68,12 @@ export default function UsersDirectoryPage() {
               placeholder="Search by name or email…"
               value={q}
               onChange={e => setQ(e.target.value)}
-              className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 min-w-[200px] border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             />
             <select
               value={role}
               onChange={e => setRole(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               {ROLES.map(r => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -84,7 +84,7 @@ export default function UsersDirectoryPage() {
               placeholder="Department"
               value={department}
               onChange={e => setDepartment(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             />
             <button
               type="submit"
@@ -94,19 +94,19 @@ export default function UsersDirectoryPage() {
             </button>
           </form>
 
-          {loading && <p className="text-center text-gray-400 mt-8">Loading…</p>}
+          {loading && <p className="text-center text-gray-400 dark:text-gray-500 mt-8">Loading…</p>}
           {error && <p className="text-center text-red-500 mt-8">{error}</p>}
 
           {result && !loading && (
             <>
-              <p className="text-sm text-gray-500 mb-4">{result.totalElements} member{result.totalElements !== 1 ? 's' : ''} found</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{result.totalElements} member{result.totalElements !== 1 ? 's' : ''} found</p>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {result.content.map(user => (
                   <Link
                     key={user.id}
                     href={`/users/${user.firebaseUid}`}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-start gap-3 hover:shadow-md transition-shadow"
+                    className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 flex items-start gap-3 hover:shadow-md transition-colors"
                   >
                     <UserAvatar
                       name={user.name}
@@ -116,13 +116,13 @@ export default function UsersDirectoryPage() {
                       size="md"
                     />
                     <div className="min-w-0">
-                      <p className="font-semibold text-gray-900 text-sm truncate">{user.name}</p>
-                      <RoleBadge role={user.role as any} roleBadge={user.roleBadge as any} />
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">{user.name}</p>
+                      <RoleBadge role={user.role} roleBadge={user.roleBadge} />
                       {user.department && (
-                        <p className="text-xs text-gray-500 mt-1 truncate">{user.department}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{user.department}</p>
                       )}
                       {user.batch && (
-                        <p className="text-xs text-gray-400">Batch {user.batch}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Batch {user.batch}</p>
                       )}
                     </div>
                   </Link>
@@ -130,7 +130,7 @@ export default function UsersDirectoryPage() {
               </div>
 
               {result.content.length === 0 && (
-                <p className="text-center text-gray-400 mt-8">No users found.</p>
+                <p className="text-center text-gray-400 dark:text-gray-500 mt-8">No users found.</p>
               )}
 
               {/* Pagination */}
@@ -139,17 +139,17 @@ export default function UsersDirectoryPage() {
                   <button
                     onClick={() => setPage(p => Math.max(0, p - 1))}
                     disabled={page === 0}
-                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                    className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     Previous
                   </button>
-                  <span className="px-4 py-2 text-sm text-gray-600">
+                  <span className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
                     Page {page + 1} of {result.totalPages}
                   </span>
                   <button
                     onClick={() => setPage(p => p + 1)}
                     disabled={result.last}
-                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+                    className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     Next
                   </button>

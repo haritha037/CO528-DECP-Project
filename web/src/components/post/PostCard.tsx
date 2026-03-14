@@ -89,7 +89,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
       {/* Header */}
       <div className="flex items-start justify-between p-4">
         <Link href={`/users/${post.author.firebaseUid}`} className="flex items-center gap-3 group">
@@ -101,7 +101,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
             size="md"
           />
           <div>
-            <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm">
+            <p className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors text-sm">
               {post.author.name}
             </p>
             <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
       {/* Content */}
       {post.textContent && (
         <div className="px-4 pb-3">
-          <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{post.textContent}</p>
+          <p className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{post.textContent}</p>
         </div>
       )}
 
@@ -164,14 +164,14 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-1 px-4 py-2 border-t border-gray-100">
+      <div className="flex items-center gap-1 px-4 py-2 border-t border-gray-100 dark:border-gray-800 transition-colors">
         <button
           onClick={handleReact}
           disabled={reacting}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             reacted
-              ? 'text-red-500 bg-red-50 hover:bg-red-100'
-              : 'text-gray-500 hover:bg-gray-100'
+              ? 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60'
+              : 'text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
           {reacted ? (
@@ -185,14 +185,14 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
         {!hideCommentSection && (
           <button
             onClick={() => setShowComments(prev => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>{commentCount}</span>
           </button>
         )}
         {hideCommentSection && (
-          <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-500">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">
             <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>{commentCount}</span>
           </span>
@@ -210,7 +210,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
 
       {/* Comments */}
       {!hideCommentSection && showComments && (
-        <div className="border-t border-gray-100">
+        <div className="border-t border-gray-100 dark:border-gray-800 transition-colors">
           <CommentSection postId={post.id} onCommentAdded={() => setCommentCount(c => c + 1)} onCommentDeleted={(n) => setCommentCount(c => Math.max(0, c - n))} />
         </div>
       )}
@@ -222,19 +222,19 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
           onClick={() => setShowReactors(false)}
         >
           <div
-            className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden"
+            className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-200 dark:border-gray-800 transition-colors"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <span className="font-semibold text-gray-800 text-sm">Reactions</span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+              <span className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Reactions</span>
               <button
                 onClick={() => setShowReactors(false)}
-                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none"
               >
                 &times;
               </button>
             </div>
-            <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
+            <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800">
               {loadingReactors ? (
                 <div className="p-4 space-y-3">
                   {[1, 2, 3].map(i => (
@@ -252,7 +252,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
                     key={r.firebaseUid}
                     href={`/users/${r.firebaseUid}`}
                     onClick={() => setShowReactors(false)}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     <UserAvatar
                       name={r.name}
@@ -262,7 +262,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
                       size="sm"
                     />
                     <div>
-                      <p className="text-sm font-medium text-gray-800">{r.name}</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{r.name}</p>
                       <RoleBadge role={r.role} roleBadge={r.roleBadge as 'blue' | 'gold' | 'red'} />
                     </div>
                   </Link>
