@@ -61,14 +61,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* ── Top Navbar ──────────────────────────────────────── */}
       <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800 z-20 transition-colors">
-        <div className="px-4 h-14 flex items-center justify-between">
+        <div className="flex h-14 items-center justify-between px-3 sm:px-4">
           {/* Logo */}
           <Link href="/feed" className="text-xl font-bold text-blue-600 cursor-pointer">
             DECP
           </Link>
 
           {/* Nav links + right controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map(link => (
                 <Link
@@ -91,18 +91,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             </div>
 
-            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 md:mx-2" />
+            <div className="hidden h-5 w-px bg-gray-200 dark:bg-gray-700 md:block md:mx-2" />
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <ThemeToggle />
-               <NotificationBell />
+              <NotificationBell />
 
-              
               {/* Avatar + dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(prev => !prev)}
-                  className="rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
+                  className="flex h-10 w-10 items-center justify-center rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
                 >
                   {profile ? (
                     <UserAvatar
@@ -161,27 +160,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ── Main content ────────────────────────────────────── */}
-      <main className="pt-14 pb-16 md:pb-0">
+      <main className="pt-14 pb-20 md:pb-0">
         {children}
       </main>
 
       {/* ── Mobile Bottom Tab Bar ───────────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 dark:bg-gray-900 dark:border-gray-800 z-10 transition-colors">
-        <div className="flex justify-around py-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 transition-colors md:hidden">
+        <div className="grid grid-cols-5 gap-1 px-2 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
           {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
-              className={`relative flex flex-col items-center gap-0.5 px-2 py-1 text-xs transition-colors cursor-pointer ${
+              className={`relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1.5 text-[13px] font-medium leading-none transition-colors cursor-pointer ${
                 isActive(link.href) ? 'text-blue-600 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               {link.href === '/messages' && unreadMessages > 0 && (
-                <span className="absolute -top-0.5 right-0 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                <span className="absolute right-1.5 top-0 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-blue-600 px-0.5 text-[10px] font-bold text-white">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               )}
-              {link.label}
+              <span className="truncate">{link.label}</span>
             </Link>
           ))}
         </div>
