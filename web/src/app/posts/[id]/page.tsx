@@ -25,41 +25,41 @@ export default function PostDetailPage() {
   return (
     <ProtectedRoute>
       <AppLayout>
-        <div className="max-w-2xl mx-auto py-6 px-4">
+        <div className="mx-auto max-w-2xl px-4 py-6">
           <Link
             href="/feed"
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition-colors"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
           >
             ← Back to Feed
           </Link>
 
           {loading && (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 animate-pulse space-y-3">
+            <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 animate-pulse dark:border-gray-700 dark:bg-gray-800">
               <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200" />
-                <div className="space-y-2 flex-1">
-                  <div className="h-3 bg-gray-200 rounded w-32" />
-                  <div className="h-2 bg-gray-100 rounded w-24" />
+                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-2 w-24 rounded bg-gray-100 dark:bg-gray-700/70" />
                 </div>
               </div>
-              <div className="h-3 bg-gray-100 rounded" />
-              <div className="h-3 bg-gray-100 rounded w-4/5" />
+              <div className="h-3 rounded bg-gray-100 dark:bg-gray-700/70" />
+              <div className="h-3 w-4/5 rounded bg-gray-100 dark:bg-gray-700/70" />
             </div>
           )}
 
           {error && (
-            <div className="text-center py-16">
-              <p className="text-4xl mb-3">😕</p>
-              <p className="text-gray-500">{error}</p>
+            <div className="py-16 text-center">
+              <p className="mb-3 text-4xl text-gray-700 dark:text-gray-200">Post unavailable</p>
+              <p className="text-gray-500 dark:text-gray-400">{error}</p>
             </div>
           )}
 
           {post && (
             <div className="space-y-4">
               <PostCard post={post} onDeleted={handleDeleted} hideCommentSection hideViewPost />
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="px-4 py-3 border-b border-gray-100">
-                  <h2 className="font-semibold text-gray-800 text-sm">Comments</h2>
+              <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                  <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Comments</h2>
                 </div>
                 <CommentSection
                   postId={post.id}

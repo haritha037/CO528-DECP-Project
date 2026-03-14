@@ -27,10 +27,26 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
   const [showReactors, setShowReactors] = useState(false);
   const [reactors, setReactors] = useState<AuthorDTO[]>([]);
   const [loadingReactors, setLoadingReactors] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
 
   const isOwner = user?.uid === post.author.firebaseUid;
   const isAdmin = user?.role === 'ADMIN';
   const authorHref = isOwner ? '/profile' : `/users/${post.author.firebaseUid}`;
+  const imageItems = post.mediaItems.filter((media) => media.mediaType === 'IMAGE');
+
+  const getMediaLayoutClass = (count: number) => {
+    if (count <= 1) return 'grid-cols-1';
+    if (count === 2) return 'grid-cols-2';
+    return 'grid-cols-2';
+  };
+
+  const getMediaItemClass = (count: number, index: number) => {
+    if (count === 1) return 'aspect-[4/3]';
+    if (count === 2) return 'aspect-square';
+    if (count === 3 && index === 0) return 'col-span-2 aspect-[16/9]';
+    if (count >= 4) return index === 0 ? 'col-span-2 aspect-[16/9]' : 'aspect-square';
+    return 'aspect-square';
+  };
 
   const handleReact = async () => {
     if (reacting) return;
@@ -130,24 +146,38 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
 
       {/* Media */}
       {post.mediaItems.length > 0 && (
-        <div className={`grid gap-1 ${post.mediaItems.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-          {post.mediaItems.map(media => (
+        <div className={`grid gap-1 bg-gray-100 dark:bg-gray-950 ${getMediaLayoutClass(post.mediaItems.length)}`}>
+          {post.mediaItems.map((media, index) => (
             media.mediaType === 'IMAGE' ? (
-              <img
+              <button
                 key={media.id}
-                src={media.mediaUrl}
-                alt={media.fileName || 'Post image'}
-                className="w-full object-cover max-h-80"
-              />
+                type="button"
+                onClick={() => {
+                  const imageIndex = imageItems.findIndex((item) => item.id === media.id);
+                  setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
+                }}
+                className={`relative overflow-hidden ${getMediaItemClass(post.mediaItems.length, index)}`}
+              >
+                <img
+                  src={media.mediaUrl}
+                  alt={media.fileName || 'Post image'}
+                  className="h-full w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
+                />
+                {post.mediaItems.length > 4 && index === 3 && (
+                  <div className="absolute inset-0 bg-black/45 flex items-center justify-center text-white text-2xl font-semibold">
+                    +{post.mediaItems.length - 4}
+                  </div>
+                )}
+              </button>
             ) : (
               <video
                 key={media.id}
                 src={media.mediaUrl}
                 controls
-                className="w-full max-h-80"
+                className={`w-full object-cover bg-black ${getMediaItemClass(post.mediaItems.length, index)}`}
               />
             )
-          ))}
+          )).slice(0, post.mediaItems.length > 4 ? 4 : post.mediaItems.length)}
         </div>
       )}
 
@@ -271,6 +301,66 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {activeImageIndex !== null && imageItems[activeImageIndex] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setActiveImageIndex(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveImageIndex(null)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl leading-none"
+            aria-label="Close image viewer"
+          >
+            &times;
+          </button>
+
+          {imageItems.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIndex((current) => current === null ? 0 : (current - 1 + imageItems.length) % imageItems.length);
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 hover:bg-white/20 text-white w-11 h-11 flex items-center justify-center text-2xl"
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+          )}
+
+          <div
+            className="max-w-5xl max-h-[85vh] w-full flex flex-col items-center gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={imageItems[activeImageIndex].mediaUrl}
+              alt={imageItems[activeImageIndex].fileName || 'Post image'}
+              className="max-h-[80vh] w-auto max-w-full object-contain rounded-xl"
+            />
+            {imageItems.length > 1 && (
+              <p className="text-sm text-white/70">
+                {activeImageIndex + 1} / {imageItems.length}
+              </p>
+            )}
+          </div>
+
+          {imageItems.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIndex((current) => current === null ? 0 : (current + 1) % imageItems.length);
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 hover:bg-white/20 text-white w-11 h-11 flex items-center justify-center text-2xl"
+              aria-label="Next image"
+            >
+              ›
+            </button>
+          )}
         </div>
       )}
     </div>
