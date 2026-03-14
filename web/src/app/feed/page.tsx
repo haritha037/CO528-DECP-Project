@@ -218,8 +218,8 @@ export default function FeedPage() {
               )}
             </main>
 
-            <aside className="hidden self-start lg:block">
-              <div className="space-y-4 lg:sticky lg:top-14">
+            <aside className="hidden lg:block lg:self-start lg:sticky lg:top-0 lg:top-[-324px]">
+              <div className="space-y-4 ">
                 <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 transition-colors">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-sm font-semibold tracking-wide text-gray-900 dark:text-gray-100 uppercase">Upcoming Events</h2>
@@ -291,6 +291,8 @@ export default function FeedPage() {
                 </section>
               </div>
             </aside>
+
+        
           </div>
         </div>
       </AppLayout>
