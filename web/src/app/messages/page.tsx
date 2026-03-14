@@ -96,11 +96,18 @@ export default function MessagesPage() {
   // Subscribe to messages, read receipts, and typing when conversation changes
   useEffect(() => {
     if (!selectedConvId) return;
-    const unsubMessages = messagingService.subscribeToMessages(selectedConvId, setMessages);
+    const unsubMessages = messagingService.subscribeToMessages(selectedConvId, (msgs) => {
+      setMessages(msgs);
+      if (user?.uid) {
+        messagingService.markMessagesRead(selectedConvId, user.uid);
+        messagingService.markConversationRead(user.uid, selectedConvId);
+      }
+    });
     const unsubReceipts = messagingService.subscribeToReadReceipts(selectedConvId, setReadBy);
     const unsubTyping = messagingService.subscribeToTyping(selectedConvId, setTypingUids);
     return () => { unsubMessages(); unsubReceipts(); unsubTyping(); };
-  }, [selectedConvId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConvId, user?.uid]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
