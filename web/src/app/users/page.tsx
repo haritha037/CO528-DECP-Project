@@ -117,6 +117,7 @@ export default function UsersDirectoryPage() {
                     />
                     <div className="min-w-0">
                       <p className="font-semibold text-gray-900 text-sm truncate">{user.name}</p>
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       <RoleBadge role={user.role as any} roleBadge={user.roleBadge as any} />
                       {user.department && (
                         <p className="text-xs text-gray-500 mt-1 truncate">{user.department}</p>

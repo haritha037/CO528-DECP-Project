@@ -102,6 +102,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     name={profile.name}
                     initials={profile.initials}
                     profilePictureUrl={profile.profilePictureUrl}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     roleBadge={profile.roleBadge as any}
                     size="md"
                   />

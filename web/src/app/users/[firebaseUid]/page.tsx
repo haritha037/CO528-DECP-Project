@@ -96,6 +96,7 @@ export default function UserProfilePage() {
 
                   <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
                   <div className="flex items-center gap-3 mt-1">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     <RoleBadge role={profile.role as any} roleBadge={profile.roleBadge as any} />
                     {profile.department && (
                       <span className="text-sm text-gray-500">{profile.department}</span>
