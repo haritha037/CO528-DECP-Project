@@ -30,6 +30,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
 
   const isOwner = user?.uid === post.author.firebaseUid;
   const isAdmin = user?.role === 'ADMIN';
+  const authorHref = isOwner ? '/profile' : `/users/${post.author.firebaseUid}`;
 
   const handleReact = async () => {
     if (reacting) return;
@@ -92,7 +93,7 @@ export default function PostCard({ post, onDeleted, hideCommentSection = false, 
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
       {/* Header */}
       <div className="flex items-start justify-between p-4">
-        <Link href={`/users/${post.author.firebaseUid}`} className="flex items-center gap-3 group">
+        <Link href={authorHref} className="flex items-center gap-3 group">
           <UserAvatar
             name={post.author.name}
             initials={post.author.initials}
