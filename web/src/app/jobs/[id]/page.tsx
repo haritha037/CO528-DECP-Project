@@ -69,74 +69,77 @@ export default function JobDetailPage() {
   return (
     <ProtectedRoute>
       <AppLayout>
-        <div className="max-w-3xl mx-auto py-6 px-4">
+        <div className="mx-auto max-w-3xl px-4 py-6">
           <Link
             href="/jobs"
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition-colors"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
           >
             ← Back to Jobs
           </Link>
 
           {loading && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse space-y-4">
-              <div className="h-5 bg-gray-200 rounded w-2/3" />
-              <div className="h-3 bg-gray-100 rounded w-1/3" />
-              <div className="h-3 bg-gray-100 rounded w-full" />
-              <div className="h-3 bg-gray-100 rounded w-5/6" />
+            <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 animate-pulse dark:border-gray-700 dark:bg-gray-800">
+              <div className="h-5 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-3 w-1/3 rounded bg-gray-100 dark:bg-gray-700/70" />
+              <div className="h-3 w-full rounded bg-gray-100 dark:bg-gray-700/70" />
+              <div className="h-3 w-5/6 rounded bg-gray-100 dark:bg-gray-700/70" />
             </div>
           )}
 
-          {error && <p className="text-center text-red-500 py-16">{error}</p>}
+          {error && <p className="py-16 text-center text-red-500">{error}</p>}
 
           {job && (
             <div className="space-y-4">
-              {/* Main card */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                       {job.title}
                     </h1>
-                    <p className="text-gray-600 mt-1 font-medium">
+                    <p className="mt-1 font-medium text-gray-600 dark:text-gray-300">
                       {job.company}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <div className="flex flex-shrink-0 flex-col items-end gap-2">
                     <span
-                      className={`text-sm font-medium px-3 py-1 rounded-full ${typeBadgeColor[job.jobType] || "bg-gray-100 text-gray-600"}`}
+                      className={`rounded-full px-3 py-1 text-sm font-medium ${typeBadgeColor[job.jobType] || "bg-gray-100 text-gray-600"}`}
                     >
                       {JOB_TYPE_LABELS[job.jobType] || job.jobType}
                     </span>
                     {job.status === "CLOSED" && (
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-red-100 text-red-600">
+                      <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-600">
                         Closed
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Meta */}
-                <div className="flex flex-wrap gap-4 py-4 border-y border-gray-100 mb-4">
+                <div className="mb-4 flex flex-wrap gap-4 border-y border-gray-100 py-4 dark:border-gray-700">
                   {job.location && (
-                    <div className="text-sm text-gray-600">
-                      📍 <span className="font-medium">{job.location}</span>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <span className="font-medium">Location:</span> {job.location}
                     </div>
                   )}
                   {job.remote && (
-                    <div className="text-sm text-green-600">
-                      🌐 <span className="font-medium">Remote</span>
+                    <div className="text-sm text-green-600 dark:text-green-400">
+                      <span className="font-medium">Remote</span>
                     </div>
                   )}
                   {job.salaryRange && (
-                    <div className="text-sm text-gray-600">
-                      💰 <span className="font-medium">{job.salaryRange}</span>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <span className="font-medium">Salary:</span> {job.salaryRange}
                     </div>
                   )}
                   {deadlineDays !== null && (
                     <div
-                      className={`text-sm ${deadlineDays < 0 ? "text-red-500" : deadlineDays <= 7 ? "text-orange-500" : "text-gray-600"}`}
+                      className={`text-sm ${
+                        deadlineDays < 0
+                          ? "text-red-500"
+                          : deadlineDays <= 7
+                            ? "text-orange-500"
+                            : "text-gray-600 dark:text-gray-300"
+                      }`}
                     >
-                      🗓{" "}
                       {deadlineDays < 0
                         ? "Deadline passed"
                         : `Closes in ${deadlineDays} day${deadlineDays !== 1 ? "s" : ""}`}
@@ -144,59 +147,55 @@ export default function JobDetailPage() {
                   )}
                 </div>
 
-                {/* Description */}
                 <div className="mb-4">
-                  <h2 className="font-semibold text-gray-800 mb-2">
+                  <h2 className="mb-2 font-semibold text-gray-800 dark:text-gray-100">
                     About this role
                   </h2>
-                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-200">
                     {job.description}
                   </p>
                 </div>
 
-                {/* Requirements */}
                 {job.requirements && (
                   <div className="mb-6">
-                    <h2 className="font-semibold text-gray-800 mb-2">
+                    <h2 className="mb-2 font-semibold text-gray-800 dark:text-gray-100">
                       Requirements
                     </h2>
-                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-200">
                       {job.requirements}
                     </p>
                   </div>
                 )}
 
-                {/* Apply button */}
                 {job.status === "ACTIVE" && (
                   <a
                     href={job.applicationLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block w-full text-center py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+                    className="inline-block w-full rounded-xl bg-blue-600 py-3 text-center font-semibold text-white transition-colors hover:bg-blue-700"
                   >
                     Apply →
                   </a>
                 )}
               </div>
 
-              {/* Owner/Admin actions */}
               {canManage && (
-                <div className="bg-white rounded-xl border border-gray-200 p-4 flex gap-3">
+                <div className="flex gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                   {job.status === "ACTIVE" && (
                     <button
                       onClick={handleClose}
                       disabled={closing}
-                      className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                      className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                      {closing ? "Closing…" : "Mark as Closed"}
+                      {closing ? "Closing..." : "Mark as Closed"}
                     </button>
                   )}
                   <button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="px-4 py-2 text-sm border border-red-200 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                    className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-900/70 dark:text-red-400 dark:hover:bg-red-950/40"
                   >
-                    {deleting ? "Deleting…" : "Delete Posting"}
+                    {deleting ? "Deleting..." : "Delete Posting"}
                   </button>
                 </div>
               )}
