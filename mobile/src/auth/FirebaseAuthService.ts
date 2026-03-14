@@ -17,12 +17,19 @@ class FirebaseAuthServiceImpl implements AuthService {
     // Sync role claims
     try {
       const token = await user.getIdToken();
-      await fetch(`${API_URL}/api/users/profile/sync-claims`, {
+      console.log(`[AuthService] Syncing claims for ${user.email}...`);
+      const response = await fetch(`${API_URL}/api/users/profile/sync-claims`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!response.ok) {
+        console.error(`[AuthService] sync-claims failed: ${response.status}`);
+      } else {
+        console.log(`[AuthService] sync-claims successful`);
+      }
       await user.getIdToken(true);
-    } catch {
+    } catch (e) {
+      console.error(`[AuthService] sync-claims error:`, e);
       // Non-fatal
     }
 
@@ -54,6 +61,7 @@ class FirebaseAuthServiceImpl implements AuthService {
   private async mapUser(firebaseUser: FirebaseUser): Promise<AuthUser> {
     const tokenResult = await firebaseUser.getIdTokenResult();
     const role = (tokenResult.claims.role as string | undefined) || 'STUDENT';
+    console.log(`[AuthService] User mapped: ${firebaseUser.email}, UID: ${firebaseUser.uid}, Role: ${role}`);
     return {
       uid: firebaseUser.uid,
       email: firebaseUser.email,

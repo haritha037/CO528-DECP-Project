@@ -11,8 +11,10 @@ import { postApi, PostDTO } from '@/api/postApi';
 import { colors, spacing, fontSize } from '@/theme';
 import PostCard from '@/components/PostCard';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/auth/AuthContext';
 
 export default function FeedScreen() {
+  const { user, loading: authLoading } = useAuth();
   const [posts, setPosts] = useState<PostDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,8 +41,10 @@ export default function FeedScreen() {
   }, []);
 
   useEffect(() => {
-    fetchFeed();
-  }, [fetchFeed]);
+    if (!authLoading && user) {
+      fetchFeed();
+    }
+  }, [fetchFeed, user, authLoading]);
 
   const onRefresh = () => {
     setRefreshing(true);

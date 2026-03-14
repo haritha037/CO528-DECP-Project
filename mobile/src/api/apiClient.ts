@@ -10,13 +10,24 @@ apiClient.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Debug logging
+  console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+  console.log(`[API Headers] Auth: ${token ? 'Present (ends with ' + token.substring(token.length - 10) + ')' : 'Missing'}`);
+  
   return config;
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`[API Response] ${response.status} ${response.config.url}`);
+    return response;
+  },
   (error) => {
-    // 401 handling is done at the app level via auth state
+    console.error(`[API Error] ${error.response?.status || 'Network Error'} ${error.config?.url}`);
+    if (error.response?.data) {
+      console.error(`[API Error Data]`, JSON.stringify(error.response.data));
+    }
     return Promise.reject(error);
   }
 );

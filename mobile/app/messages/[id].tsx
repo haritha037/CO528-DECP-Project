@@ -1,20 +1,22 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  FlatList, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  KeyboardAvoidingView, 
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { db } from '@/auth/firebase';
-import { ref, onValue, push, serverTimestamp, set, update, DataSnapshot } from 'firebase/database';
-import { useAuth } from '@/auth/AuthContext';
-import { colors, spacing, borderRadius, fontSize, fontWeight } from '@/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { db } from '../../src/auth/firebase';
+import { ref, onValue, push, set, update, runTransaction, get } from 'firebase/database';
+import { useAuth } from '../../src/auth/AuthContext';
+import { userApi, UserDTO } from '../../src/api/userApi';
+import { colors, spacing, borderRadius } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { formatTime } from '@/utils/dateUtils';
 
@@ -22,63 +24,120 @@ interface Message {
   id: string;
   senderId: string;
   text: string;
-  timestamp: string | number | null;
+  sentAt: number;
 }
 
 export default function ChatScreen() {
-  const { id: threadId } = useLocalSearchParams<{ id: string }>();
+  const { id: conversationId } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [otherUser, setOtherUser] = useState<UserDTO | null>(null);
   const flatListRef = useRef<FlatList>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!threadId || !user) return;
+    if (!conversationId || !user) return;
 
-    const messagesRef = ref(db, `messages/${threadId}`);
-    
-    const unsubscribe = onValue(messagesRef, (snapshot: DataSnapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const list = Object.keys(data).map(key => ({
-          id: key,
-          ...data[key],
-        })) as Message[];
-        setMessages(list);
-      }
+    const messagesRef = ref(db, `conversations/${conversationId}/messages`);
+
+    const unsubscribe = onValue(messagesRef, async (snapshot) => {
+      const list: Message[] = [];
+      snapshot.forEach((child) => {
+        list.push({
+          id: child.key!,
+          ...child.val(),
+        });
+      });
+
+      list.sort((a, b) => a.sentAt - b.sentAt);
+      setMessages(list);
       setLoading(false);
-    });
 
-    // Mark as read
-    const threadRef = ref(db, `userThreads/${user.uid}/${threadId}`);
-    update(threadRef, { unreadCount: 0 });
+      try {
+        const myConvRef = ref(db, `user_conversations/${user.uid}/${conversationId}`);
+        await update(myConvRef, { unreadCount: 0 });
+
+        const readReceiptRef = ref(db, `conversations/${conversationId}/readBy/${user.uid}`);
+        await set(readReceiptRef, Date.now());
+      } catch (error) {
+        console.error('Failed to update read state:', error);
+      }
+    });
 
     return () => unsubscribe();
-  }, [threadId, user]);
+  }, [conversationId, user]);
 
-  const handleSend = async () => {
-    if (!text.trim() || !user || !threadId) return;
+  useEffect(() => {
+    if (!conversationId || !user) return;
 
-    const messageData = {
-      senderId: user.uid,
-      text: text.trim(),
-      timestamp: serverTimestamp(),
+    const loadOtherUser = async () => {
+      try {
+        const metaRef = ref(db, `conversations/${conversationId}/metadata`);
+        const snapshot = await get(metaRef);
+        const meta = snapshot.val();
+
+        if (meta) {
+          const otherUid = meta.participantA === user.uid ? meta.participantB : meta.participantA;
+          const fetchedUser = await userApi.getUserByUid(otherUid);
+          setOtherUser(fetchedUser);
+        }
+      } catch (error) {
+        console.error('Failed to load other user:', error);
+      }
     };
 
-    const messagesRef = ref(db, `messages/${threadId}`);
-    const newMessageRef = push(messagesRef);
-    
-    setText('');
-    await set(newMessageRef, messageData);
-    
-    // Update thread for both users (simplified logic)
-    // In a real app, you'd update both userThreads[user.uid] and userThreads[otherUid]
-    const threadRef = ref(db, `userThreads/${user.uid}/${threadId}`);
-    update(threadRef, {
-      lastMessage: text.trim(),
-      lastMessageTime: serverTimestamp(),
-    });
+    loadOtherUser();
+  }, [conversationId, user]);
+
+  const handleSend = async () => {
+    if (!text.trim() || !user || !conversationId || !otherUser) return;
+
+    try {
+      const sentAt = Date.now();
+      const messageText = text.trim();
+      const preview = messageText.length > 60 ? messageText.substring(0, 60) + '...' : messageText;
+
+      const messageData = {
+        senderId: user.uid,
+        text: messageText,
+        sentAt,
+      };
+
+      setText('');
+
+      const messagesRef = ref(db, `conversations/${conversationId}/messages`);
+      await push(messagesRef, messageData);
+
+      const metaRef = ref(db, `conversations/${conversationId}/metadata`);
+      await update(metaRef, {
+        lastMessage: preview,
+        lastMessageAt: sentAt,
+        lastMessageSenderId: user.uid,
+      });
+
+      const myConvRef = ref(db, `user_conversations/${user.uid}/${conversationId}`);
+      await update(myConvRef, {
+        lastMessage: preview,
+        lastMessageAt: sentAt,
+      });
+
+      const otherUid = (otherUser as any).firebaseUid ?? (otherUser as any).uid;
+      const otherConvRef = ref(db, `user_conversations/${otherUid}/${conversationId}`);
+      await update(otherConvRef, {
+        otherUid: user.uid,
+        lastMessage: preview,
+        lastMessageAt: sentAt,
+      });
+
+      await runTransaction(
+        ref(db, `user_conversations/${otherUid}/${conversationId}/unreadCount`),
+        (current) => (current || 0) + 1
+      );
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   const renderItem = ({ item }: { item: Message }) => {
@@ -89,7 +148,7 @@ export default function ChatScreen() {
           {item.text}
         </Text>
         <Text style={[styles.messageTime, isMe ? styles.myMessageTime : styles.theirMessageTime]}>
-          {item.timestamp ? formatTime(item.timestamp) : ''}
+          {item.sentAt ? formatTime(item.sentAt) : ''}
         </Text>
       </View>
     );
@@ -104,40 +163,65 @@ export default function ChatScreen() {
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
-      <Stack.Screen options={{ title: 'Chat' }} />
-      
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderItem}
-        keyExtractor={(item: Message) => item.id}
-        contentContainerStyle={styles.listContent}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerTitle: otherUser ? otherUser.name : 'Chat',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ marginLeft: Platform.OS === 'ios' ? 0 : 4, marginRight: 16 }}
+            >
+              <Ionicons name="chevron-back" size={28} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+          headerTitleStyle: {
+            fontSize: 16,
+            fontWeight: '700',
+            color: colors.text,
+          },
+          headerStyle: {
+            backgroundColor: colors.surface,
+          },
+          headerShadowVisible: false,
+        }}
       />
 
-      <View style={styles.inputArea}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          placeholderTextColor={colors.textMuted}
-          value={text}
-          onChangeText={setText}
-          multiline
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
-        <TouchableOpacity 
-          style={[styles.sendButton, !text.trim() && styles.sendButtonDisabled]} 
-          onPress={handleSend}
-          disabled={!text.trim()}
-        >
-          <Ionicons name="send" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+
+        <View style={styles.inputArea}>
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor={colors.textMuted}
+            value={text}
+            onChangeText={setText}
+            multiline
+          />
+          <TouchableOpacity
+            style={[styles.sendButton, !text.trim() && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!text.trim()}
+          >
+            <Ionicons name="send" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -169,7 +253,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   messageText: {
-    fontSize: fontSize.md,
+    fontSize: 15,
     lineHeight: 20,
   },
   myMessageText: {
@@ -201,20 +285,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     color: colors.text,
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.xl,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingVertical: 10,
     maxHeight: 100,
-    fontSize: fontSize.md,
+    fontSize: 15,
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: spacing.sm,
+    marginBottom: 2,
   },
   sendButtonDisabled: {
     backgroundColor: colors.surfaceLight,
