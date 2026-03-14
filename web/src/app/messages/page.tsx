@@ -37,6 +37,10 @@ export default function MessagesPage() {
   const [showThread, setShowThread] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [readBy, setReadBy] = useState<Record<string, number>>({});
+  const [typingUids, setTypingUids] = useState<Record<string, number>>({});
+  // convId -> whether the OTHER user is typing (for list preview)
+  const [convTypingMap, setConvTypingMap] = useState<Record<string, boolean>>({});
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -46,9 +50,11 @@ export default function MessagesPage() {
   const [searching, setSearching] = useState(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Subscribe to conversation list
+  const typingUnsubsRef = useRef<Record<string, () => void>>({});
   useEffect(() => {
     if (!user?.uid) return;
     const unsub = messagingService.subscribeToConversationList(user.uid, (convs) => {
@@ -60,9 +66,21 @@ export default function MessagesPage() {
             setProfileCache((prev) => ({ ...prev, [c.otherUid]: profile }));
           }).catch(() => {});
         }
+        // Subscribe to typing for this conversation if not already
+        if (!typingUnsubsRef.current[c.conversationId]) {
+          const unsubTyping = messagingService.subscribeToTyping(c.conversationId, (t) => {
+            const isOtherTyping = !!(t[c.otherUid] && t[c.otherUid] > Date.now() - 4000);
+            setConvTypingMap((prev) => ({ ...prev, [c.conversationId]: isOtherTyping }));
+          });
+          typingUnsubsRef.current[c.conversationId] = unsubTyping;
+        }
       });
     });
-    return unsub;
+    return () => {
+      unsub();
+      Object.values(typingUnsubsRef.current).forEach((u) => u());
+      typingUnsubsRef.current = {};
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid]);
 
@@ -75,11 +93,13 @@ export default function MessagesPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid, withUid]);
 
-  // Subscribe to messages when conversation changes
+  // Subscribe to messages, read receipts, and typing when conversation changes
   useEffect(() => {
     if (!selectedConvId) return;
-    const unsub = messagingService.subscribeToMessages(selectedConvId, setMessages);
-    return unsub;
+    const unsubMessages = messagingService.subscribeToMessages(selectedConvId, setMessages);
+    const unsubReceipts = messagingService.subscribeToReadReceipts(selectedConvId, setReadBy);
+    const unsubTyping = messagingService.subscribeToTyping(selectedConvId, setTypingUids);
+    return () => { unsubMessages(); unsubReceipts(); unsubTyping(); };
   }, [selectedConvId]);
 
   // Scroll to bottom on new messages
@@ -107,6 +127,7 @@ export default function MessagesPage() {
     // Don't clear messages if re-selecting the same conversation
     if (convId !== selectedConvId) {
       setMessages([]);
+      setReadBy({});
     }
     setSelectedConvId(convId);
     setSelectedOtherUid(otherUid);
@@ -115,6 +136,7 @@ export default function MessagesPage() {
     setSearchResults([]);
     if (user?.uid) {
       messagingService.markConversationRead(user.uid, convId);
+      messagingService.markMessagesRead(convId, user.uid);
     }
     if (!profileCache[otherUid]) {
       userApi.getUserByUid(otherUid).then((profile) => {
@@ -130,10 +152,23 @@ export default function MessagesPage() {
     selectConversation(convId, otherUser.firebaseUid);
   }
 
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputText(e.target.value);
+    if (!selectedConvId || !user?.uid) return;
+    messagingService.setTyping(selectedConvId, user.uid, true);
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => {
+      messagingService.setTyping(selectedConvId, user.uid!, false);
+    }, 3000);
+  }
+
   async function handleSend() {
     if (!inputText.trim() || !selectedConvId || !selectedOtherUid || !user?.uid) return;
     const text = inputText.trim();
     setInputText('');
+    // Clear typing indicator immediately on send
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    messagingService.setTyping(selectedConvId, user.uid, false);
     setSending(true);
     try {
       await messagingService.sendMessage(selectedConvId, user.uid, selectedOtherUid, text);
@@ -143,6 +178,9 @@ export default function MessagesPage() {
   }
 
   const otherProfile = selectedOtherUid ? profileCache[selectedOtherUid] : null;
+  const isOtherTyping = selectedOtherUid
+    ? (typingUids[selectedOtherUid] || 0) > Date.now() - 4000
+    : false;
   const isSearching = searchQuery.trim().length > 0;
 
   return (
@@ -204,6 +242,7 @@ export default function MessagesPage() {
                   {conversations.map((conv) => {
                     const profile = profileCache[conv.otherUid];
                     const isSelected = conv.conversationId === selectedConvId;
+                    const isTypingInList = convTypingMap[conv.conversationId];
                     return (
                       <button
                         key={conv.conversationId}
@@ -227,7 +266,18 @@ export default function MessagesPage() {
                             <span className="text-xs text-gray-400 shrink-0 ml-2">{timeAgo(conv.lastMessageAt)}</span>
                           </div>
                           <div className="flex items-center justify-between mt-0.5">
-                            <span className="text-xs text-gray-500 truncate">{conv.lastMessage || 'Say hello!'}</span>
+                            {isTypingInList ? (
+                              <span className="text-xs text-blue-500 italic flex items-center gap-1">
+                                typing
+                                <span className="flex gap-0.5">
+                                  <span className="w-1 h-1 bg-blue-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                                  <span className="w-1 h-1 bg-blue-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                                  <span className="w-1 h-1 bg-blue-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                                </span>
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-500 truncate">{conv.lastMessage || 'Say hello!'}</span>
+                            )}
                             {conv.unreadCount > 0 && (
                               <span className="ml-2 shrink-0 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                                 {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
@@ -287,6 +337,8 @@ export default function MessagesPage() {
                   )}
                   {messages.map((msg) => {
                     const isMine = msg.senderId === user?.uid;
+                    const otherReadAt = selectedOtherUid ? (readBy[selectedOtherUid] || 0) : 0;
+                    const isRead = isMine && otherReadAt >= msg.sentAt;
                     return (
                       <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                         <div className="max-w-[70%]">
@@ -297,13 +349,27 @@ export default function MessagesPage() {
                           }`}>
                             {msg.text}
                           </div>
-                          <p className={`text-xs text-gray-400 mt-0.5 ${isMine ? 'text-right' : 'text-left'}`}>
+                          <p className={`text-xs mt-0.5 ${isMine ? 'text-right' : 'text-left'} ${isRead ? 'text-blue-500' : 'text-gray-400'}`}>
                             {timeAgo(msg.sentAt)}
+                            {isMine && (
+                              <span className="ml-1">
+                                {isRead ? '✓✓ Read' : '✓ Delivered'}
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>
                     );
                   })}
+                  {isOtherTyping && (
+                    <div className="flex justify-start">
+                      <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-2.5 flex items-center gap-1">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                      </div>
+                    </div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -312,7 +378,7 @@ export default function MessagesPage() {
                   <input
                     type="text"
                     value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();

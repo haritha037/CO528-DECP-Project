@@ -20,4 +20,8 @@ export interface MessagingService {
   subscribeToMessages(conversationId: string, callback: (messages: Message[]) => void): () => void;
   subscribeToConversationList(uid: string, callback: (conversations: ConversationMetadata[]) => void): () => void;
   markConversationRead(uid: string, conversationId: string): void;
+  markMessagesRead(conversationId: string, uid: string): void;
+  subscribeToReadReceipts(conversationId: string, callback: (readBy: Record<string, number>) => void): () => void;
+  setTyping(conversationId: string, uid: string, isTyping: boolean): void;
+  subscribeToTyping(conversationId: string, callback: (typingUids: Record<string, number>) => void): () => void;
 }

@@ -17,7 +17,7 @@ tasks:
 
   up:
     desc: Start all services detached (local Postgres)
-    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} up -d
+    cmd: docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}} --env-file web/.env.local up -d
 
   up:prod:
     desc: Start all services with Neon DBs (.env.prod injected)
@@ -34,6 +34,125 @@ tasks:
   up:infra:
     desc: Start infrastructure only (Postgres + RabbitMQ)
     cmd: docker compose -f {{.INFRA_DC}} up -d
+
+  # ── Kubernetes (Kind) ───────────────────────────────────────────
+
+  k8s:cluster-create:
+    desc: Create the Kind cluster with port 80/443 mapped to host
+    cmds:
+      - kind create cluster --name decp --config deployment/k8s/kind-config.yaml
+      - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+      - kubectl rollout status deployment/ingress-nginx-controller --namespace ingress-nginx --timeout=120s
+
+  k8s:cluster-delete:
+    desc: Delete the Kind cluster
+    cmd: kind delete cluster --name decp
+
+  k8s:cluster-recreate:
+    desc: Delete and recreate the Kind cluster, then load images and deploy everything
+    cmds:
+      - task: k8s:cluster-delete
+      - task: k8s:cluster-create
+      - task: k8s:load
+      - task: k8s:deploy
+
+  k8s:build-web:
+    desc: Build web image for Kind (bakes in http://localhost as API URL, read from web/.env.k8s)
+    cmd: >
+      docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}}
+      --env-file web/.env.local
+      --env-file web/.env.k8s
+      build web
+
+  k8s:load:
+    desc: Load all Docker images into the Kind cluster
+    cmds:
+      - kind load docker-image decp-api-gateway:latest --name decp
+      - kind load docker-image decp-user-service:latest --name decp
+      - kind load docker-image decp-post-service:latest --name decp
+      - kind load docker-image decp-job-service:latest --name decp
+      - kind load docker-image decp-event-service:latest --name decp
+      - kind load docker-image decp-notification-service:latest --name decp
+      - kind load docker-image decp-web:latest --name decp
+
+  k8s:deploy:
+    desc: Apply all Kubernetes manifests
+    cmds:
+      - kubectl apply -f deployment/k8s/namespace.yaml
+      - kubectl apply -f deployment/k8s/configmap.yaml
+      - kubectl apply -f deployment/k8s/secrets.yaml
+      - kubectl apply -f deployment/k8s/rabbitmq/
+      - kubectl apply -f deployment/k8s/api-gateway/
+      - kubectl apply -f deployment/k8s/user-service/
+      - kubectl apply -f deployment/k8s/post-service/
+      - kubectl apply -f deployment/k8s/job-service/
+      - kubectl apply -f deployment/k8s/event-service/
+      - kubectl apply -f deployment/k8s/notification-service/
+      - kubectl apply -f deployment/k8s/web/
+      - kubectl apply -f deployment/k8s/ingress.yaml
+
+  k8s:status:
+    desc: Show status of all pods and services in the decp namespace
+    cmds:
+      - kubectl get pods -n decp
+      - kubectl get svc -n decp
+
+  # ── GKE (Google Kubernetes Engine) ─────────────────────────────
+
+  gke:build-web:
+    desc: Build web image for GKE (bakes in empty API URL = relative paths)
+    cmd: >
+      docker compose -f {{.INFRA_DC}} -f {{.APPS_DC}}
+      --env-file web/.env.local
+      --env-file web/.env.k8s
+      build web
+
+  gke:push:
+    desc: Tag all images with Artifact Registry path and push to GCP
+    vars:
+      GAR: "asia-south1-docker.pkg.dev/decp-project/decp-repo"
+    cmds:
+      - docker tag decp-api-gateway:latest {{.GAR}}/decp-api-gateway:latest
+      - docker tag decp-user-service:latest {{.GAR}}/decp-user-service:latest
+      - docker tag decp-post-service:latest {{.GAR}}/decp-post-service:latest
+      - docker tag decp-job-service:latest {{.GAR}}/decp-job-service:latest
+      - docker tag decp-event-service:latest {{.GAR}}/decp-event-service:latest
+      - docker tag decp-notification-service:latest {{.GAR}}/decp-notification-service:latest
+      - docker tag decp-web:latest {{.GAR}}/decp-web:latest
+      - docker push {{.GAR}}/decp-api-gateway:latest
+      - docker push {{.GAR}}/decp-user-service:latest
+      - docker push {{.GAR}}/decp-post-service:latest
+      - docker push {{.GAR}}/decp-job-service:latest
+      - docker push {{.GAR}}/decp-event-service:latest
+      - docker push {{.GAR}}/decp-notification-service:latest
+      - docker push {{.GAR}}/decp-web:latest
+
+  gke:deploy:
+    desc: Apply all GKE Kubernetes manifests
+    cmds:
+      - kubectl apply -f deployment/k8s-gke/namespace.yaml
+      - kubectl apply -f deployment/k8s-gke/configmap.yaml
+      - kubectl apply -f deployment/k8s-gke/secrets.yaml
+      - kubectl apply -f deployment/k8s-gke/rabbitmq/
+      - kubectl apply -f deployment/k8s-gke/api-gateway/
+      - kubectl apply -f deployment/k8s-gke/user-service/
+      - kubectl apply -f deployment/k8s-gke/post-service/
+      - kubectl apply -f deployment/k8s-gke/job-service/
+      - kubectl apply -f deployment/k8s-gke/event-service/
+      - kubectl apply -f deployment/k8s-gke/notification-service/
+      - kubectl apply -f deployment/k8s-gke/web/
+      - kubectl apply -f deployment/k8s-gke/ingress.yaml
+
+  gke:status:
+    desc: Show status of all pods and services in GKE
+    cmds:
+      - kubectl get pods -n decp
+      - kubectl get svc -n decp
+
+  gke:destroy:
+    desc: Delete the GKE cluster via Terraform (stops billing)
+    dir: deployment/terraform
+    cmd: terraform destroy
 
   # ── Local Spring Boot — all services ────────────────────────────
 

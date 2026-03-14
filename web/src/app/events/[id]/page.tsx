@@ -141,6 +141,7 @@ export default function EventDetailPage() {
             <div className="space-y-4">
               {/* Main card */}
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <div>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`text-sm font-medium px-3 py-1 rounded-full ${EVENT_TYPE_COLORS[event.eventType] || 'bg-gray-100 text-gray-600'}`}>
                     {EVENT_TYPE_LABELS[event.eventType] || event.eventType}
@@ -188,6 +189,15 @@ export default function EventDetailPage() {
                   {event.description}
                 </p>
 
+                {/* Cover image */}
+                {event.imageUrl && (
+                  <img
+                    src={event.imageUrl}
+                    alt={event.title}
+                    className="w-full rounded-lg mb-6"
+                  />
+                )}
+
                 {/* RSVP buttons */}
                 {event.status !== 'CANCELLED' && (
                   <div>
@@ -210,6 +220,7 @@ export default function EventDetailPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
 
               {/* RSVP stats */}
