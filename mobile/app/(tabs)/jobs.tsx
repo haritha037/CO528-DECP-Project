@@ -13,8 +13,10 @@ import { colors, spacing, borderRadius, fontSize } from '@/theme';
 import JobCard from '@/components/JobCard';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/auth/AuthContext';
 
 export default function JobsScreen() {
+  const { user, loading: authLoading } = useAuth();
   const [jobs, setJobs] = useState<JobDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,12 +48,13 @@ export default function JobsScreen() {
   }, [search]);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     const timer = setTimeout(() => {
       setLoading(true);
       fetchJobs(0, true);
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, fetchJobs]);
+  }, [search, fetchJobs, user, authLoading]);
 
   const onRefresh = () => {
     setRefreshing(true);

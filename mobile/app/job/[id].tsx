@@ -7,9 +7,11 @@ import {
   Text, 
   TouchableOpacity,
   Linking,
-  Share
+  Share,
+  Platform
 } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useAuth } from '@/auth/AuthContext';
 import { jobApi, JobDTO, JOB_TYPE_LABELS } from '@/api/jobApi';
 import { colors, spacing, borderRadius, fontSize, fontWeight } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,17 +19,19 @@ import { formatDate } from '@/utils/dateUtils';
 
 export default function JobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user, loading: authLoading } = useAuth();
   const [job, setJob] = useState<JobDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    if (id) {
+    if (id && !authLoading && user) {
       jobApi.getJob(id)
         .then(setJob)
         .catch(console.error)
         .finally(() => setLoading(false));
     }
-  }, [id]);
+  }, [id, user, authLoading]);
 
   const handleApply = () => {
     if (job?.applicationLink) {
@@ -71,6 +75,11 @@ export default function JobDetailScreen() {
       <Stack.Screen 
         options={{ 
           title: 'Job Detail',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: Platform.OS === 'ios' ? 0 : 4, marginRight: 16 }}>
+              <Ionicons name="chevron-back" size={28} color={colors.primary} />
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <TouchableOpacity onPress={handleShare} style={{ marginRight: spacing.md }}>
               <Ionicons name="share-social-outline" size={24} color={colors.primary} />

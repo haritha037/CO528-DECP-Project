@@ -1,17 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { 
-  StyleSheet, 
+  StyleSheet,
   View, 
   ScrollView, 
   ActivityIndicator, 
   Text, 
   TextInput, 
   TouchableOpacity,
-  KeyboardAvoidingView,
+  KeyboardAvoidingView, 
   Platform,
   FlatList
 } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useAuth } from '../../src/auth/AuthContext';
 import { postApi, PostDTO, CommentDTO } from '../../src/api/postApi';
 import { colors, spacing, borderRadius, fontSize, fontWeight } from '../../src/theme';
 import PostCard from '../../src/components/PostCard';
@@ -20,14 +21,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user, loading: authLoading } = useAuth();
   const [post, setPost] = useState<PostDTO | null>(null);
   const [comments, setComments] = useState<CommentDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const fetchData = useCallback(async () => {
-    if (!id) return;
+    if (!id || authLoading || !user) return;
     try {
       const [postData, commentData] = await Promise.all([
         postApi.getPost(id),
@@ -40,11 +43,13 @@ export default function PostDetailScreen() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, user, authLoading]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (!authLoading && user) {
+      fetchData();
+    }
+  }, [fetchData, user, authLoading]);
 
   const handleAddComment = async () => {
     if (!commentText.trim() || submitting || !id) return;
@@ -85,7 +90,16 @@ export default function PostDetailScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      <Stack.Screen options={{ title: 'Post' }} />
+      <Stack.Screen 
+        options={{ 
+          title: 'Post',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: Platform.OS === 'ios' ? 0 : 4, marginRight: 16 }}>
+              <Ionicons name="chevron-back" size={28} color={colors.primary} />
+            </TouchableOpacity>
+          ),
+        }} 
+      />
       
       <FlatList
         data={comments}

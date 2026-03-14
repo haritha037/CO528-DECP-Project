@@ -11,8 +11,10 @@ import { eventApi, EventDTO } from '@/api/eventApi';
 import { colors, spacing, fontSize } from '@/theme';
 import EventCard from '@/components/EventCard';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/auth/AuthContext';
 
 export default function EventsScreen() {
+  const { user, loading: authLoading } = useAuth();
   const [events, setEvents] = useState<EventDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -42,8 +44,10 @@ export default function EventsScreen() {
   }, []);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    if (!authLoading && user) {
+      fetchEvents();
+    }
+  }, [fetchEvents, user, authLoading]);
 
   const onRefresh = () => {
     setRefreshing(true);

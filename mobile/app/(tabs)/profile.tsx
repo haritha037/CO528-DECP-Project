@@ -15,16 +15,18 @@ import Avatar from '@/components/Avatar';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [profile, setProfile] = useState<UserDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    userApi.getMyProfile()
-      .then(setProfile)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+    if (!authLoading && user) {
+      userApi.getMyProfile()
+        .then(setProfile)
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [user, authLoading]);
 
   if (loading) {
     return (

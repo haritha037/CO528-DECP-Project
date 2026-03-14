@@ -4,51 +4,51 @@ import {
   View, 
   FlatList, 
   ActivityIndicator, 
-  RefreshControl,
-  Text,
-  TouchableOpacity
+  Text, 
+  TouchableOpacity,
+  SafeAreaView
 } from 'react-native';
-import { notificationApi } from '@/api/notificationApi';
+import { notificationService, AppNotification } from '../../src/notifications/FirebaseNotificationService';
+import { useAuth } from '../../src/auth/AuthContext';
 import { colors, spacing, borderRadius, fontSize, fontWeight } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { formatDateTime } from '@/utils/dateUtils';
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const data = await notificationApi.getNotifications();
-      setNotifications(data);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    if (!user) return;
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchNotifications();
-  };
+    const unsubscribe = notificationService.subscribeToNotifications(user.uid, (data) => {
+      setNotifications(data);
+      setLoading(false);
+    });
 
-  const markAllRead = async () => {
-    try {
-      await notificationApi.markAllRead();
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    } catch (error) {
-      console.error('Failed to mark all read:', error);
+    return () => unsubscribe();
+  }, [user]);
+
+  const markAllRead = () => {
+    if (!user) return;
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    if (unreadIds.length > 0) {
+      notificationService.markAllAsRead(user.uid, unreadIds);
     }
   };
 
-  const renderItem = ({ item }: { item: any }) => (
-    <View style={[styles.notificationItem, !item.read && styles.unreadItem]}>
+  const markAsRead = (id: string) => {
+    if (!user) return;
+    notificationService.markAsRead(user.uid, id);
+  };
+
+  const renderItem = ({ item }: { item: AppNotification }) => (
+    <TouchableOpacity 
+      style={[styles.notificationItem, !item.read && styles.unreadItem]}
+      onPress={() => markAsRead(item.id)}
+      activeOpacity={0.7}
+    >
       <View style={styles.iconContainer}>
         <Ionicons 
           name={item.type === 'LIKE' ? 'heart' : 'chatbubble'} 
@@ -60,10 +60,10 @@ export default function NotificationsScreen() {
         <Text style={styles.notificationText}>
           <Text style={styles.boldText}>{item.senderName}</Text> {item.message}
         </Text>
-        <Text style={styles.timeText}>{new Date(item.createdAt).toLocaleString()}</Text>
+        <Text style={styles.timeText}>{formatDateTime(item.createdAt)}</Text>
       </View>
       {!item.read && <View style={styles.unreadDot} />}
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -75,7 +75,7 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Recent Activity</Text>
         {notifications.some(n => !n.read) && (
@@ -88,14 +88,7 @@ export default function NotificationsScreen() {
       <FlatList
         data={notifications}
         renderItem={renderItem}
-        keyExtractor={(item, index) => item.id || index.toString()}
-        refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            tintColor={colors.primary}
-          />
-        }
+        keyExtractor={(item) => item.id}
         ListEmptyComponent={
           <View style={styles.center}>
             <Ionicons name="notifications-off-outline" size={64} color={colors.textMuted} />
@@ -104,7 +97,7 @@ export default function NotificationsScreen() {
         }
         contentContainerStyle={styles.listContent}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -158,7 +151,7 @@ const styles = StyleSheet.create({
   },
   notificationText: {
     color: colors.text,
-    fontSize: fontSize.md,
+    fontSize: 15,
     lineHeight: 20,
   },
   boldText: {
@@ -166,7 +159,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     color: colors.textMuted,
-    fontSize: fontSize.xs,
+    fontSize: 11,
     marginTop: 4,
   },
   unreadDot: {
