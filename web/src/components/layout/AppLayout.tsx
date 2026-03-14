@@ -69,8 +69,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Nav links + right controls */}
           <div className="flex items-center gap-2">
-            
-
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map(link => (
                 <Link
@@ -91,12 +89,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
 
-              <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-2" />
+            </div>
 
+            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 md:mx-2" />
+
+            <div className="flex items-center gap-2">
               <ThemeToggle />
+               <NotificationBell />
 
-              <NotificationBell />
-
+              
               {/* Avatar + dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -112,16 +113,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       size="md"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                    <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
                   )}
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 dark:bg-gray-900 dark:border-gray-800 py-1 z-30 transition-colors">
+                  <div className="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-gray-200 bg-white py-1 shadow-lg transition-colors dark:border-gray-800 dark:bg-gray-900">
                     <Link
                       href="/profile"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                      className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
                     >
                       Profile
                     </Link>
@@ -134,7 +135,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             key={link.href}
                             href={link.href}
                             onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                            className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
                           >
                             {link.label}
                           </Link>
@@ -145,13 +146,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
                     <button
                       onClick={() => { signOut(); setDropdownOpen(false); }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                      className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40"
                     >
                       Sign out
                     </button>
                   </div>
                 )}
               </div>
+
+             
             </div>
           </div>
         </div>
