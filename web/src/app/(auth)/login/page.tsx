@@ -30,6 +30,7 @@ export default function LoginPage() {
       const { userApi } = await import('@/lib/api/userApi');
       const profile = await userApi.getMyProfile();
       router.push(profile.profileComplete ? '/feed' : '/profile/setup');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       setError('Invalid email or password. Please try again.');
@@ -126,7 +127,7 @@ export default function LoginPage() {
         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
             Accounts are created by the department administrator. 
-            <br />If you don't have an account, please contact the department office.
+            <br />If you don&apos;t have an account, please contact the department office.
           </p>
         </div>
       </div>

@@ -1,0 +1,21 @@
+# ConfigMap — non-sensitive configuration for all services.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: decp
+data:
+  # Must match NEXT_PUBLIC_API_URL origin in web/.env.k8s (browser address bar URL)
+  CORS_ALLOWED_ORIGINS: "http://10.30.13.229"
+  SPRING_RABBITMQ_HOST: "rabbitmq"
+  SPRING_RABBITMQ_PORT: "5672"
+
+  # Inter-service URLs
+  USER_SERVICE_URL: "http://user-service:8081"
+  POST_SERVICE_URL: "http://post-service:8082"
+  JOB_SERVICE_URL: "http://job-service:8083"
+  EVENT_SERVICE_URL: "http://event-service:8084"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8085"
+
+  # Firebase
+  FIREBASE_DATABASE_URL: "https://decp-decec-default-rtdb.asia-southeast1.firebasedatabase.app/"

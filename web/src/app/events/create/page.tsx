@@ -36,7 +36,6 @@ export default function CreateEventPage() {
 }
 
 function CreateEventForm({ onCreated }: { onCreated: (id: string) => void }) {
-  const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<Omit<CreateEventRequest, 'imageUrl'> & { startTimeLocal: string; endTimeLocal: string }>({

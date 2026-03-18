@@ -67,6 +67,66 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             DECP
           </Link>
 
+          {/* Mobile: notification + avatar in top bar */}
+          <div className="flex md:hidden items-center gap-2">
+            <NotificationBell />
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(prev => !prev)}
+                className="rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+              >
+                {profile ? (
+                  <UserAvatar
+                    name={profile.name}
+                    initials={profile.initials}
+                    profilePictureUrl={profile.profilePictureUrl}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    roleBadge={profile.roleBadge as any}
+                    size="md"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+                )}
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-30">
+                  <Link
+                    href="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    Profile
+                  </Link>
+
+                  {user?.role === 'ADMIN' && (
+                    <>
+                      <div className="my-1 border-t border-gray-100" />
+                      {adminLinks.map(link => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </>
+                  )}
+
+                  <div className="my-1 border-t border-gray-100" />
+                  <button
+                    onClick={() => { signOut(); setDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Nav links + right controls */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="hidden md:flex items-center gap-1">

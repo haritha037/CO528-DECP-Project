@@ -78,6 +78,7 @@ export default function AdminUsersPage() {
       // Refresh list
       setPage(0);
       setTab('list');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setCreateError(err.response?.data?.message || err.message || 'Failed to create user');
     } finally {
@@ -236,6 +237,7 @@ export default function AdminUsersPage() {
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{user.department ?? '—'}</td>
                           <td className="px-6 py-4">
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             <RoleBadge role={user.role as any} roleBadge={user.roleBadge as any} />
                           </td>
                           <td className="px-6 py-4">

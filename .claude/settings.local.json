@@ -11,7 +11,11 @@
       "Bash(rm -rf \"$BASE/post-service/src/main/java/com/decp/postservice\")",
       "Bash(rm -rf \"$BASE/job-service/src/main/java/com/decp/jobservice\")",
       "Bash(rm -rf \"$BASE/event-service/src/main/java/com/decp/eventservice\")",
-      "Bash(rm -rf \"$BASE/notification-service/src/main/java/com/decp/notificationservice\")"
+      "Bash(rm -rf \"$BASE/notification-service/src/main/java/com/decp/notificationservice\")",
+      "Bash(for service:*)",
+      "Bash(do echo:*)",
+      "Read(//home/haritha/Desktop/projects/CO528-DECP-Project/services/$service/**)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

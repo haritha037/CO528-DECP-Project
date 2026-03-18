@@ -72,6 +72,7 @@ export default function ProfileEditPage() {
 
       await userApi.updateProfile(payload);
       router.push('/profile');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'An error occurred');
     } finally {

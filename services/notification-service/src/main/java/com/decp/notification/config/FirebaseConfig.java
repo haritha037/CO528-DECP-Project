@@ -9,12 +9,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import jakarta.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Configuration
 public class FirebaseConfig {
 
+    // Preferred: JSON content injected as env var (used in k8s/Docker deployments)
+    @Value("${FIREBASE_SERVICE_ACCOUNT_JSON:}")
+    private String serviceAccountJson;
+
+    // Fallback: classpath file (used for local Spring Boot and Docker Compose builds)
     @Value("${firebase.service-account-path}")
     private Resource serviceAccountResource;
 
@@ -25,8 +33,17 @@ public class FirebaseConfig {
     public void initialize() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
+                InputStream credentialsStream;
+                if (serviceAccountJson != null && !serviceAccountJson.isBlank()) {
+                    log.info("Firebase: loading credentials from FIREBASE_SERVICE_ACCOUNT_JSON env var");
+                    credentialsStream = new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8));
+                } else {
+                    log.info("Firebase: loading credentials from classpath file");
+                    credentialsStream = serviceAccountResource.getInputStream();
+                }
+
                 FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccountResource.getInputStream()))
+                        .setCredentials(GoogleCredentials.fromStream(credentialsStream))
                         .setDatabaseUrl(databaseUrl)
                         .build();
 

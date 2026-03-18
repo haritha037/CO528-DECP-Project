@@ -148,6 +148,26 @@ cp web/.env.example web/.env.local
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID                                      |
 | `NEXT_PUBLIC_FIREBASE_APP_ID`              | Firebase app ID                                                   |
 | `NEXT_PUBLIC_FIREBASE_DATABASE_URL`        | Firebase Realtime Database URL (used for messaging/notifications) |
-| `NEXT_PUBLIC_API_GATEWAY_URL`              | Backend gateway URL (default: `http://localhost:8080`)            |
+| `NEXT_PUBLIC_API_URL`                      | Backend gateway URL (default: `http://localhost:8080`)            |
 
 > `web/.env.local` is gitignored. Never commit real Firebase credentials.
+
+### Accessing from Other Computers on the Local Network
+
+If you want to access the Next.js app from another computer on the same Wi-Fi/local network, you must update the `NEXT_PUBLIC_API_URL` to point to the host computer's IP address instead of `localhost`.
+
+1. Find your host computer's local IP address (e.g., `192.168.1.41`).
+2. Update `web/.env.local`:
+   ```env
+   # NEXT_PUBLIC_API_URL="http://localhost:8080"
+   NEXT_PUBLIC_API_URL="http://192.168.1.x:8080"
+   ```
+3. Update `CORS_ALLOWED_ORIGINS` in `.env.prod`:
+   ```properties
+   CORS_ALLOWED_ORIGINS=http://localhost:3000,http://192.168.1.x:3000
+   ```
+4. Rebuild the web container so the new URL is baked into the frontend:
+   ```bash
+   task build
+   task up
+   ```

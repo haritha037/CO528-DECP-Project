@@ -192,6 +192,16 @@ export default function EventDetailPage() {
                   {event.description}
                 </p>
 
+                {/* Cover image */}
+                {event.imageUrl && (
+                  <img
+                    src={event.imageUrl}
+                    alt={event.title}
+                    className="w-full rounded-lg mb-6"
+                  />
+                )}
+
+                {/* RSVP buttons */}
                 {event.status !== 'CANCELLED' && (
                   <div>
                     <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">Your RSVP</p>
@@ -213,6 +223,7 @@ export default function EventDetailPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
 
               <div className="grid grid-cols-3 divide-x divide-gray-100 rounded-xl border border-gray-200 bg-white p-4 text-center dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">

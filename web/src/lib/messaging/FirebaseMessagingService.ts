@@ -92,4 +92,31 @@ export class FirebaseMessagingService implements MessagingService {
   markConversationRead(uid: string, conversationId: string): void {
     set(ref(db, `user_conversations/${uid}/${conversationId}/unreadCount`), 0);
   }
+
+  markMessagesRead(conversationId: string, uid: string): void {
+    set(ref(db, `conversations/${conversationId}/readBy/${uid}`), Date.now());
+  }
+
+  subscribeToReadReceipts(conversationId: string, callback: (readBy: Record<string, number>) => void): () => void {
+    const readByRef = ref(db, `conversations/${conversationId}/readBy`);
+    return onValue(readByRef, (snapshot) => {
+      callback(snapshot.val() || {});
+    });
+  }
+
+  setTyping(conversationId: string, uid: string, isTyping: boolean): void {
+    const typingRef = ref(db, `conversations/${conversationId}/typing/${uid}`);
+    if (isTyping) {
+      set(typingRef, Date.now());
+    } else {
+      set(typingRef, null);
+    }
+  }
+
+  subscribeToTyping(conversationId: string, callback: (typingUids: Record<string, number>) => void): () => void {
+    const typingRef = ref(db, `conversations/${conversationId}/typing`);
+    return onValue(typingRef, (snapshot) => {
+      callback(snapshot.val() || {});
+    });
+  }
 }
