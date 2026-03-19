@@ -11,8 +11,8 @@ import { userApi, UserDTO } from '@/lib/api/userApi';
 import { useAuth } from '@/contexts/AuthContext';
 
 const RSVP_OPTIONS = [
-  { value: 'GOING',     label: 'Going',     activeColor: 'bg-green-600 text-white hover:bg-green-700' },
-  { value: 'MAYBE',     label: 'Maybe',     activeColor: 'bg-yellow-500 text-white hover:bg-yellow-600' },
+  { value: 'GOING', label: 'Going', activeColor: 'bg-green-600 text-white hover:bg-green-700' },
+  { value: 'MAYBE', label: 'Maybe', activeColor: 'bg-yellow-500 text-white hover:bg-yellow-600' },
   { value: 'NOT_GOING', label: 'Not Going', activeColor: 'bg-gray-500 text-white hover:bg-gray-600' },
 ];
 
@@ -23,7 +23,6 @@ function formatDateTime(dt: string) {
   });
 }
 
-// Enriched attendee: combines RSVP data with user profile
 interface EnrichedAttendee {
   attendee: AttendeeDTO;
   profile: UserDTO | null;
@@ -122,70 +121,74 @@ export default function EventDetailPage() {
   return (
     <ProtectedRoute>
       <AppLayout>
-        <div className="max-w-3xl mx-auto py-6 px-4">
-          <Link href="/events" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition-colors">
+        <div className="mx-auto max-w-3xl px-4 py-6">
+          <Link
+            href="/events"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+          >
             ← Back to Events
           </Link>
 
           {loading && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse space-y-4">
-              <div className="h-5 bg-gray-200 rounded w-2/3" />
-              <div className="h-3 bg-gray-100 rounded w-1/3" />
-              <div className="h-3 bg-gray-100 rounded w-full" />
+            <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 animate-pulse dark:border-gray-700 dark:bg-gray-800">
+              <div className="h-5 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-3 w-1/3 rounded bg-gray-100 dark:bg-gray-700/70" />
+              <div className="h-3 w-full rounded bg-gray-100 dark:bg-gray-700/70" />
             </div>
           )}
 
-          {error && <p className="text-center text-red-500 py-16">{error}</p>}
+          {error && <p className="py-16 text-center text-red-500">{error}</p>}
 
           {event && (
             <div className="space-y-4">
-              {/* Main card */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className={`text-sm font-medium px-3 py-1 rounded-full ${EVENT_TYPE_COLORS[event.eventType] || 'bg-gray-100 text-gray-600'}`}>
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div className="mb-4 flex items-center gap-2">
+                  <span className={`rounded-full px-3 py-1 text-sm font-medium ${EVENT_TYPE_COLORS[event.eventType] || 'bg-gray-100 text-gray-600'}`}>
                     {EVENT_TYPE_LABELS[event.eventType] || event.eventType}
                   </span>
                   {event.status === 'CANCELLED' && (
-                    <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-red-100 text-red-600">Cancelled</span>
+                    <span className="rounded-full bg-red-100 px-2.5 py-1 text-sm font-medium text-red-600">Cancelled</span>
                   )}
                   {event.online && (
-                    <span className="text-sm text-blue-500 font-medium">🌐 Online</span>
+                    <span className="text-sm font-medium text-blue-500 dark:text-blue-400">Online</span>
                   )}
                 </div>
 
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">{event.title}</h1>
+                <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">{event.title}</h1>
 
-                {/* Meta */}
-                <div className="space-y-2 pb-4 border-b border-gray-100 mb-4">
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="w-5 flex-shrink-0">📅</span>
+                <div className="mb-4 space-y-2 border-b border-gray-100 pb-4 dark:border-gray-700">
+                  <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <span className="w-12 flex-shrink-0 text-gray-500 dark:text-gray-400">Date</span>
                     <div>
                       <div>{formatDateTime(event.startTime)}</div>
-                      <div className="text-gray-400 text-xs mt-0.5">to {formatDateTime(event.endTime)}</div>
+                      <div className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">to {formatDateTime(event.endTime)}</div>
                     </div>
                   </div>
                   {event.location && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span>📍</span> {event.location}
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                      <span className="w-12 flex-shrink-0 text-gray-500 dark:text-gray-400">Place</span>
+                      <span>{event.location}</span>
                     </div>
                   )}
                   {event.online && event.onlineLink && (
                     <div className="flex items-center gap-2 text-sm">
-                      <span>🔗</span>
-                      <a href={event.onlineLink} target="_blank" rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline truncate">
+                      <span className="w-12 flex-shrink-0 text-gray-500 dark:text-gray-400">Link</span>
+                      <a
+                        href={event.onlineLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="truncate text-blue-600 hover:underline dark:text-blue-400"
+                      >
                         {event.onlineLink}
                       </a>
                     </div>
                   )}
                   {event.maxAttendees && (
-                    <div className="text-sm text-gray-500">👥 Max {event.maxAttendees} attendees</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Max {event.maxAttendees} attendees</div>
                   )}
                 </div>
 
-                {/* Description */}
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap mb-6">
+                <p className="mb-6 whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-200">
                   {event.description}
                 </p>
 
@@ -201,48 +204,45 @@ export default function EventDetailPage() {
                 {/* RSVP buttons */}
                 {event.status !== 'CANCELLED' && (
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Your RSVP</p>
-                    <div className="flex gap-2 flex-wrap">
+                    <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">Your RSVP</p>
+                    <div className="flex flex-wrap gap-2">
                       {RSVP_OPTIONS.map(opt => (
                         <button
                           key={opt.value}
                           onClick={() => handleRsvp(opt.value)}
                           disabled={rsvping !== null}
-                          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-60 ${
+                          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-60 ${
                             event.myRsvpStatus === opt.value
-                              ? opt.activeColor + ' ring-2 ring-offset-1 ring-blue-400'
-                              : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                              ? `${opt.activeColor} ring-2 ring-blue-400 ring-offset-1 dark:ring-offset-gray-800`
+                              : 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
                           }`}
                         >
-                          {rsvping === opt.value ? '…' : opt.label}
+                          {rsvping === opt.value ? '...' : opt.label}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
-                </div>
               </div>
 
-              {/* RSVP stats */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4 grid grid-cols-3 divide-x divide-gray-100 text-center">
+              <div className="grid grid-cols-3 divide-x divide-gray-100 rounded-xl border border-gray-200 bg-white p-4 text-center dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
                 <div>
                   <p className="text-2xl font-bold text-green-600">{event.goingCount}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Going</p>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Going</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-yellow-500">{event.maybeCount}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Maybe</p>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Maybe</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-gray-400">{event.notGoingCount}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Not Going</p>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Not Going</p>
                 </div>
               </div>
 
-              {/* Attendee list — only GOING + MAYBE */}
               {(event.goingCount + event.maybeCount) > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 p-4">
-                  <h2 className="text-sm font-semibold text-gray-700 mb-3">
+                <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                  <h2 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">
                     Who&apos;s coming ({event.goingCount + event.maybeCount})
                   </h2>
                   <div className="space-y-3">
@@ -250,9 +250,9 @@ export default function EventDetailPage() {
                       <Link
                         key={attendee.userId}
                         href={`/users/${attendee.userId}`}
-                        className="flex items-center justify-between gap-3 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition-colors"
+                        className="mx-[-0.25rem] flex items-center justify-between gap-3 rounded-lg p-1 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/60"
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex min-w-0 items-center gap-3">
                           {profile ? (
                             <UserAvatar
                               name={profile.name}
@@ -262,13 +262,13 @@ export default function EventDetailPage() {
                               size="sm"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0" />
+                            <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-700" />
                           )}
-                          <span className="text-sm text-gray-800 font-medium truncate">
+                          <span className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">
                             {profile?.name ?? attendee.userId}
                           </span>
                         </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                        <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs ${
                           attendee.rsvpStatus === 'GOING'
                             ? 'bg-green-100 text-green-700'
                             : 'bg-yellow-100 text-yellow-700'
@@ -283,29 +283,28 @@ export default function EventDetailPage() {
                     <button
                       onClick={loadMoreAttendees}
                       disabled={loadingMoreAttendees}
-                      className="mt-3 text-sm text-blue-600 hover:underline disabled:opacity-50"
+                      className="mt-3 text-sm text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
                     >
-                      {loadingMoreAttendees ? 'Loading…' : 'Load more'}
+                      {loadingMoreAttendees ? 'Loading...' : 'Load more'}
                     </button>
                   )}
                 </div>
               )}
 
-              {/* Admin actions */}
               {isAdmin && (
-                <div className="bg-white rounded-xl border border-gray-200 p-4 flex gap-3">
+                <div className="flex gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                   <Link
                     href={`/events/${id}/edit`}
-                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                   >
                     Edit Event
                   </Link>
                   <button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="px-4 py-2 text-sm border border-red-200 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                    className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-900/70 dark:text-red-400 dark:hover:bg-red-950/40"
                   >
-                    {deleting ? 'Deleting…' : 'Delete Event'}
+                    {deleting ? 'Deleting...' : 'Delete Event'}
                   </button>
                 </div>
               )}

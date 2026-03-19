@@ -28,6 +28,11 @@ export default function UserProfilePage() {
   const [startingConv, setStartingConv] = useState(false);
 
   useEffect(() => {
+    if (user?.uid === firebaseUid) {
+      router.replace('/profile');
+      return;
+    }
+
     if (!firebaseUid) return;
     Promise.all([
       userApi.getUserByUid(firebaseUid),
@@ -39,7 +44,7 @@ export default function UserProfilePage() {
       })
       .catch(() => setError('User not found.'))
       .finally(() => setLoading(false));
-  }, [firebaseUid]);
+  }, [firebaseUid, router, user?.uid]);
 
   const handleMessageClick = async () => {
     if (!user?.uid) return;
@@ -58,13 +63,13 @@ export default function UserProfilePage() {
     <ProtectedRoute>
       <AppLayout>
         <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 space-y-4">
-          {loading && <p className="text-center text-gray-400 mt-16">Loading…</p>}
+          {loading && <p className="text-center text-gray-400 dark:text-gray-500 mt-16">Loading…</p>}
           {error && <p className="text-center text-red-500 mt-16">{error}</p>}
 
           {profile && (
             <>
               {/* Profile card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
                 <div className="h-24 bg-gradient-to-r from-blue-500 to-indigo-600" />
 
                 <div className="px-6 pb-6">
@@ -94,20 +99,19 @@ export default function UserProfilePage() {
                     )}
                   </div>
 
-                  <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
                   <div className="flex items-center gap-3 mt-1">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    <RoleBadge role={profile.role as any} roleBadge={profile.roleBadge as any} />
+                    <RoleBadge role={profile.role} roleBadge={profile.roleBadge} />
                     {profile.department && (
-                      <span className="text-sm text-gray-500">{profile.department}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{profile.department}</span>
                     )}
                     {profile.batch && (
-                      <span className="text-sm text-gray-400">· Batch {profile.batch}</span>
+                      <span className="text-sm text-gray-400 dark:text-gray-500">· Batch {profile.batch}</span>
                     )}
                   </div>
 
                   {profile.bio && (
-                    <p className="mt-4 text-gray-700 text-sm leading-relaxed">{profile.bio}</p>
+                    <p className="mt-4 text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{profile.bio}</p>
                   )}
 
                   <div className="mt-4 flex gap-3">
@@ -119,24 +123,24 @@ export default function UserProfilePage() {
                     )}
                     {profile.githubUrl && (
                       <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-gray-700 hover:text-gray-900 transition-colors" title="GitHub">
+                        className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title="GitHub">
                         <FaGithub className="w-5 h-5" />
                       </a>
                     )}
                   </div>
 
-                  <p className="mt-4 text-xs text-gray-400">{profile.email}</p>
+                  <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">{profile.email}</p>
                 </div>
               </div>
 
               {/* Posts section */}
               <div>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                   Posts · {posts.length}
                 </h2>
                 {posts.length === 0 ? (
-                  <div className="text-center py-10 bg-white rounded-xl border border-gray-200">
-                    <p className="text-gray-400 text-sm">No posts yet.</p>
+                  <div className="text-center py-10 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors">
+                    <p className="text-gray-400 dark:text-gray-500 text-sm">No posts yet.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">

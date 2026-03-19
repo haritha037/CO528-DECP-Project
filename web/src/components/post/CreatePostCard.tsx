@@ -74,7 +74,7 @@ export default function CreatePostCard({ onPostCreated, authorProfile, showAvata
   const canSubmit = !submitting && (text.trim().length > 0 || selectedFiles.length > 0);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 transition-colors">
       <div className="flex gap-3">
         {showAvatar && (
           <UserAvatar
@@ -91,7 +91,7 @@ export default function CreatePostCard({ onPostCreated, authorProfile, showAvata
             onChange={e => setText(e.target.value)}
             placeholder="Share something with your department…"
             rows={3}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:border-blue-400 resize-none"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-400 resize-none transition-colors"
           />
 
           {/* Image previews */}
@@ -124,7 +124,7 @@ export default function CreatePostCard({ onPostCreated, authorProfile, showAvata
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors text-xs font-medium"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xs font-medium"
                   title="Add image"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">

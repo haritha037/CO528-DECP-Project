@@ -8,6 +8,7 @@ import { userApi, UserDTO } from '@/lib/api/userApi';
 import NotificationBell from './NotificationBell';
 import UserAvatar from '@/components/shared/UserAvatar';
 import { messagingService } from '@/lib/messaging';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 const navLinks = [
   { href: '/feed',     label: 'Feed'      },
@@ -57,10 +58,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* ── Top Navbar ──────────────────────────────────────── */}
-      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-20">
-        <div className="px-4 h-14 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800 z-20 transition-colors">
+        <div className="flex h-14 items-center justify-between px-3 sm:px-4">
           {/* Logo */}
           <Link href="/feed" className="text-xl font-bold text-blue-600 cursor-pointer">
             DECP
@@ -127,112 +128,119 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Nav links + right controls */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                  isActive(link.href)
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {link.label}
-                {link.href === '/messages' && unreadMessages > 0 && (
-                  <span className="bg-blue-600 text-white text-[11px] font-bold rounded-full h-5 min-w-[1.25rem] flex items-center justify-center px-1">
-                    {unreadMessages > 99 ? '99+' : unreadMessages}
-                  </span>
-                )}
-              </Link>
-            ))}
-
-            <div className="w-px h-5 bg-gray-200 mx-2" />
-
-            <NotificationBell />
-
-            {/* Avatar + dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen(prev => !prev)}
-                className="rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-              >
-                {profile ? (
-                  <UserAvatar
-                    name={profile.name}
-                    initials={profile.initials}
-                    profilePictureUrl={profile.profilePictureUrl}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    roleBadge={profile.roleBadge as any}
-                    size="md"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
-                )}
-              </button>
-
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-30">
-                  <Link
-                    href="/profile"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    Profile
-                  </Link>
-
-                  {user?.role === 'ADMIN' && (
-                    <>
-                      <div className="my-1 border-t border-gray-100" />
-                      {adminLinks.map(link => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                    </>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.map(link => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                    isActive(link.href)
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
+                      : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  {link.label}
+                  {link.href === '/messages' && unreadMessages > 0 && (
+                    <span className="bg-blue-600 text-white text-[11px] font-bold rounded-full h-5 min-w-[1.25rem] flex items-center justify-center px-1">
+                      {unreadMessages > 99 ? '99+' : unreadMessages}
+                    </span>
                   )}
+                </Link>
+              ))}
 
-                  <div className="my-1 border-t border-gray-100" />
-                  <button
-                    onClick={() => { signOut(); setDropdownOpen(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
+            </div>
+
+            <div className="hidden h-5 w-px bg-gray-200 dark:bg-gray-700 md:block md:mx-2" />
+
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <ThemeToggle />
+              <NotificationBell />
+
+              {/* Avatar + dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(prev => !prev)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
+                >
+                  {profile ? (
+                    <UserAvatar
+                      name={profile.name}
+                      initials={profile.initials}
+                      profilePictureUrl={profile.profilePictureUrl}
+                      roleBadge={profile.roleBadge}
+                      size="md"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
+                  )}
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-gray-200 bg-white py-1 shadow-lg transition-colors dark:border-gray-800 dark:bg-gray-900">
+                    <Link
+                      href="/profile"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                    >
+                      Profile
+                    </Link>
+
+                    {user?.role === 'ADMIN' && (
+                      <>
+                        <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
+                        {adminLinks.map(link => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                      </>
+                    )}
+
+                    <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
+                    <button
+                      onClick={() => { signOut(); setDropdownOpen(false); }}
+                      className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+
+             
             </div>
           </div>
         </div>
       </header>
 
       {/* ── Main content ────────────────────────────────────── */}
-      <main className="pt-14 pb-16 md:pb-0">
+      <main className="pt-14 pb-20 md:pb-0">
         {children}
       </main>
 
       {/* ── Mobile Bottom Tab Bar ───────────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
-        <div className="flex justify-around py-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 transition-colors md:hidden">
+        <div className="grid grid-cols-5 gap-1 px-2 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
           {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
-              className={`relative flex flex-col items-center gap-0.5 px-2 py-1 text-xs transition-colors cursor-pointer ${
-                isActive(link.href) ? 'text-blue-600' : 'text-gray-500'
+              className={`relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1.5 text-[13px] font-medium leading-none transition-colors cursor-pointer ${
+                isActive(link.href) ? 'text-blue-600 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               {link.href === '/messages' && unreadMessages > 0 && (
-                <span className="absolute -top-0.5 right-0 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                <span className="absolute right-1.5 top-0 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-blue-600 px-0.5 text-[10px] font-bold text-white">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               )}
-              {link.label}
+              <span className="truncate">{link.label}</span>
             </Link>
           ))}
         </div>

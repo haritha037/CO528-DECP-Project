@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 export default function Home() {
   return (
@@ -15,7 +16,8 @@ export default function Home() {
               DECP
             </span>
           </Link>
-          <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+          <div className="flex items-center gap-3 md:order-2 space-x-0 rtl:space-x-reverse">
+            <ThemeToggle />
             <Link href="/login">
               <button
                 type="button"

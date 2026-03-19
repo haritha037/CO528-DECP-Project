@@ -60,7 +60,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="relative flex items-center justify-center w-9 h-9 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+        className="relative flex items-center justify-center w-9 h-9 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         title="Notifications"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -74,9 +74,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute top-full -right-12 md:right-0 mt-2 w-80 bg-white rounded-xl border border-gray-200 shadow-lg z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="text-sm font-semibold text-gray-800">Notifications</span>
+        <div className="absolute top-full -right-12 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg z-50 transition-colors md:right-0 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+            <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notifications</span>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
@@ -87,16 +87,16 @@ export default function NotificationBell() {
             )}
           </div>
 
-          <div className="max-h-96 overflow-y-auto divide-y divide-gray-50">
+          <div className="max-h-96 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800">
             {recent.length === 0 ? (
-              <p className="text-center text-sm text-gray-400 py-8">No notifications yet</p>
+              <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-8">No notifications yet</p>
             ) : (
               recent.map(n => (
                 <button
                   key={n.id}
                   onClick={() => handleNotificationClick(n)}
-                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                    !n.read ? 'bg-blue-50/40' : ''
+                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                    !n.read ? 'bg-blue-50/40 dark:bg-blue-500/10' : ''
                   }`}
                 >
                   <div className="flex items-start gap-2">
@@ -104,9 +104,9 @@ export default function NotificationBell() {
                       <span className="mt-1.5 w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
                     )}
                     <div className={!n.read ? '' : 'pl-4'}>
-                      <p className="text-sm font-medium text-gray-800 leading-snug">{n.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 leading-snug">{n.message}</p>
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug">{n.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">{n.message}</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                         {new Date(n.createdAt).toLocaleString()}
                       </p>
                     </div>

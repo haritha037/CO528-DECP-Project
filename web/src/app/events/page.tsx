@@ -65,8 +65,8 @@ export default function EventsPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Events</h1>
-              <p className="text-sm text-gray-500 mt-0.5">Department events, workshops, and networking sessions</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Events</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Department events, workshops, and networking sessions</p>
             </div>
             {isAdmin && (
               <Link
@@ -79,12 +79,12 @@ export default function EventsPage() {
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex flex-wrap gap-3 items-center">
-            <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 mb-6 flex flex-wrap gap-3 items-center transition-colors">
+            <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               <button
                 onClick={() => setShowUpcoming(true)}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  showUpcoming ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                  showUpcoming ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-950 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
                 Upcoming
@@ -92,7 +92,7 @@ export default function EventsPage() {
               <button
                 onClick={() => setShowUpcoming(false)}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  !showUpcoming ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                  !showUpcoming ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-950 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
                 All
@@ -102,7 +102,7 @@ export default function EventsPage() {
             <select
               value={type}
               onChange={e => setType(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 bg-white"
+              className="text-sm border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors"
             >
               <option value="">All Types</option>
               {TYPE_OPTIONS.map(t => (
@@ -115,18 +115,18 @@ export default function EventsPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2 mb-4" />
-                  <div className="h-3 bg-gray-100 rounded w-full" />
+                <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 animate-pulse transition-colors">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/2 mb-4" />
+                  <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-full" />
                 </div>
               ))}
             </div>
           ) : events.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📅</p>
-              <p className="text-gray-500 font-medium">No events found</p>
-              <p className="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
+              <p className="text-gray-500 dark:text-gray-300 font-medium">No events found</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try adjusting your filters</p>
             </div>
           ) : (
             <>
@@ -135,7 +135,7 @@ export default function EventsPage() {
                   const days = daysUntil(event.startTime);
                   return (
                     <Link key={event.id} href={`/events/${event.id}`}>
-                      <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer h-full flex flex-col">
+                      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:border-blue-300 dark:hover:border-blue-500/50 hover:shadow-sm transition-all cursor-pointer h-full flex flex-col">
                         <div className="flex items-center gap-2 mb-3">
                           <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${EVENT_TYPE_COLORS[event.eventType] || 'bg-gray-100 text-gray-600'}`}>
                             {EVENT_TYPE_LABELS[event.eventType] || event.eventType}
@@ -148,17 +148,17 @@ export default function EventsPage() {
                           )}
                         </div>
 
-                        <h2 className="font-semibold text-gray-900 mb-1 line-clamp-2">{event.title}</h2>
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">{event.title}</h2>
 
-                        <div className="text-sm text-gray-500 mt-1">📅 {formatDate(event.startTime)}</div>
-                        <div className="text-sm text-gray-400">🕐 {formatTime(event.startTime)} – {formatTime(event.endTime)}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">📅 {formatDate(event.startTime)}</div>
+                        <div className="text-sm text-gray-400 dark:text-gray-500">🕐 {formatTime(event.startTime)} – {formatTime(event.endTime)}</div>
 
                         {event.location && (
-                          <div className="text-sm text-gray-500 mt-1">📍 {event.location}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">📍 {event.location}</div>
                         )}
 
                         <div className="mt-auto pt-3 flex items-center justify-between">
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
                             {event.goingCount} going · {event.maybeCount} maybe
                           </span>
                           {days >= 0 ? (
@@ -166,7 +166,7 @@ export default function EventsPage() {
                               {days === 0 ? 'Today!' : `In ${days}d`}
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-300">Past</span>
+                            <span className="text-xs text-gray-300 dark:text-gray-600">Past</span>
                           )}
                         </div>
 
@@ -185,13 +185,13 @@ export default function EventsPage() {
                 <button
                   onClick={() => loadEvents(page + 1)}
                   disabled={loadingMore}
-                  className="w-full mt-4 py-3 text-sm text-blue-600 font-medium border border-blue-200 rounded-xl hover:bg-blue-50 disabled:opacity-50 transition-colors"
+                  className="w-full mt-4 py-3 text-sm text-blue-600 dark:text-blue-300 font-medium border border-blue-200 dark:border-blue-800 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/30 disabled:opacity-50 transition-colors"
                 >
                   {loadingMore ? 'Loading…' : 'Load More'}
                 </button>
               )}
               {!hasMore && events.length > 0 && (
-                <p className="text-center text-sm text-gray-400 py-3 mt-2">All events loaded</p>
+                <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-3 mt-2">All events loaded</p>
               )}
             </>
           )}

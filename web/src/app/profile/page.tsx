@@ -100,7 +100,7 @@ export default function ProfilePage() {
           {profile && (
             <>
               {/* Profile card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
                 <div className="h-24 bg-gradient-to-r from-blue-500 to-indigo-600" />
                 <div className="px-6 pb-6">
                   <div className="flex items-end justify-between -mt-10 mb-4">
@@ -113,18 +113,17 @@ export default function ProfilePage() {
                     />
                     <Link
                       href="/profile/edit"
-                      className="bg-white px-4 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="bg-white dark:bg-gray-950 px-4 py-1.5 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                       Edit Profile
                     </Link>
                   </div>
 
-                  <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
                   <div className="flex items-center gap-3 mt-1">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    <RoleBadge role={profile.role as any} roleBadge={profile.roleBadge as any} />
+                    <RoleBadge role={profile.role} roleBadge={profile.roleBadge} />
                     {profile.department && (
-                      <span className="text-sm text-gray-500">{profile.department}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{profile.department}</span>
                     )}
                     {profile.batch && (
                       <span className="text-sm text-gray-400">· Batch {profile.batch}</span>
@@ -132,7 +131,7 @@ export default function ProfilePage() {
                   </div>
 
                   {profile.bio && (
-                    <p className="mt-4 text-gray-700 text-sm leading-relaxed">{profile.bio}</p>
+                    <p className="mt-4 text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{profile.bio}</p>
                   )}
 
                   <div className="mt-4 flex gap-3">
@@ -144,26 +143,26 @@ export default function ProfilePage() {
                     )}
                     {profile.githubUrl && (
                       <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-gray-700 hover:text-gray-900 transition-colors" title="GitHub">
+                        className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title="GitHub">
                         <FaGithub className="w-5 h-5" />
                       </a>
                     )}
                   </div>
 
-                  <p className="mt-4 text-xs text-gray-400">{profile.email}</p>
+                  <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">{profile.email}</p>
                 </div>
               </div>
 
               {/* Tabs — only for alumni/admin */}
               {canPostJobs ? (
                 <>
-                  <div className="flex border-b border-gray-200">
+                  <div className="flex border-b border-gray-200 dark:border-gray-800">
                     <button
                       onClick={() => setActiveTab('posts')}
                       className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === 'posts'
                           ? 'border-blue-600 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                       }`}
                     >
                       Posts · {posts.length}
@@ -173,7 +172,7 @@ export default function ProfilePage() {
                       className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === 'jobs'
                           ? 'border-blue-600 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                       }`}
                     >
                       Job Postings · {jobs.length}
@@ -189,8 +188,8 @@ export default function ProfilePage() {
                         showAvatar={false}
                       />
                       {posts.length === 0 ? (
-                        <div className="text-center py-10 bg-white rounded-xl border border-gray-200">
-                          <p className="text-gray-400 text-sm">No posts yet.</p>
+                        <div className="text-center py-10 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors">
+                          <p className="text-gray-400 dark:text-gray-500 text-sm">No posts yet.</p>
                         </div>
                       ) : (
                         <div className="space-y-4">
@@ -215,16 +214,16 @@ export default function ProfilePage() {
                       </div>
 
                       {jobs.length === 0 ? (
-                        <div className="text-center py-10 bg-white rounded-xl border border-gray-200">
-                          <p className="text-gray-400 text-sm">You haven&apos;t posted any jobs yet.</p>
+                        <div className="text-center py-10 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors">
+                          <p className="text-gray-400 dark:text-gray-500 text-sm">You haven&apos;t posted any jobs yet.</p>
                         </div>
                       ) : (
                         jobs.map(job => (
-                          <div key={job.id} className="bg-white rounded-xl border border-gray-200 p-5">
+                          <div key={job.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 transition-colors">
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <h3 className="font-semibold text-gray-900">{job.title}</h3>
+                                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{job.title}</h3>
                                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeBadgeColor[job.jobType] || 'bg-gray-100 text-gray-600'}`}>
                                     {JOB_TYPE_LABELS[job.jobType] || job.jobType}
                                   </span>
@@ -232,7 +231,7 @@ export default function ProfilePage() {
                                     <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-600">Closed</span>
                                   )}
                                 </div>
-                                <p className="text-sm text-gray-500 mt-0.5">{job.company}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{job.company}</p>
                                 {job.location && (
                                   <p className="text-xs text-gray-400 mt-1">📍 {job.location}{job.remote ? ' · Remote' : ''}</p>
                                 )}
@@ -240,16 +239,16 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100">
+                            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
                               <Link
                                 href={`/jobs/${job.id}`}
-                                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                                className="px-3 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                               >
                                 View
                               </Link>
                               <Link
                                 href={`/jobs/${job.id}/edit`}
-                                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                                className="px-3 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                               >
                                 Edit
                               </Link>
@@ -257,7 +256,7 @@ export default function ProfilePage() {
                                 <button
                                   onClick={() => handleCloseJob(job.id)}
                                   disabled={closingJobId === job.id}
-                                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                                  className="px-3 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
                                 >
                                   {closingJobId === job.id ? 'Closing…' : 'Close'}
                                 </button>
@@ -284,12 +283,12 @@ export default function ProfilePage() {
                     onPostCreated={handlePostCreated}
                     showAvatar={false}
                   />
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                  <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Posts · {posts.length}
                   </h2>
                   {posts.length === 0 ? (
-                    <div className="text-center py-10 bg-white rounded-xl border border-gray-200">
-                      <p className="text-gray-400 text-sm">No posts yet.</p>
+                    <div className="text-center py-10 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors">
+                      <p className="text-gray-400 dark:text-gray-500 text-sm">No posts yet.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">

@@ -128,12 +128,12 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
               />
             </Link>
             <div className="flex-1">
-              <div className="bg-gray-50 rounded-xl px-3 py-2">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2 transition-colors">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <Link href={`/users/${comment.author.firebaseUid}`} className="text-xs font-semibold text-gray-900 hover:text-blue-600 transition-colors">{comment.author.name}</Link>
+                  <Link href={`/users/${comment.author.firebaseUid}`} className="text-xs font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 transition-colors">{comment.author.name}</Link>
                   <RoleBadge role={comment.author.role} roleBadge={comment.author.roleBadge} />
                 </div>
-                <p className="text-sm text-gray-800">{comment.content}</p>
+                <p className="text-sm text-gray-800 dark:text-gray-200">{comment.content}</p>
               </div>
               <div className="flex items-center gap-3 mt-1 px-1">
                 <span className="text-xs text-gray-400">{timeAgo(comment.createdAt)}</span>
@@ -161,7 +161,7 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
                     placeholder="Write a reply…"
-                    className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400"
+                    className="flex-1 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400 transition-colors"
                     onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleAddReply(comment.id)}
                   />
                   <button
@@ -189,12 +189,12 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
                         />
                       </Link>
                       <div className="flex-1">
-                        <div className="bg-gray-50 rounded-xl px-3 py-2">
+                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2 transition-colors">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <Link href={`/users/${reply.author.firebaseUid}`} className="text-xs font-semibold text-gray-900 hover:text-blue-600 transition-colors">{reply.author.name}</Link>
+                            <Link href={`/users/${reply.author.firebaseUid}`} className="text-xs font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 transition-colors">{reply.author.name}</Link>
                             <RoleBadge role={reply.author.role} roleBadge={reply.author.roleBadge} />
                           </div>
-                          <p className="text-sm text-gray-800">{reply.content}</p>
+                          <p className="text-sm text-gray-800 dark:text-gray-200">{reply.content}</p>
                         </div>
                         <div className="flex items-center gap-3 px-1 mt-1">
                           <span className="text-xs text-gray-400">{timeAgo(reply.createdAt)}</span>
@@ -218,7 +218,7 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
       ))}
 
       {/* New comment input */}
-      <div className="flex gap-3 pt-2 border-t border-gray-100">
+      <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-gray-800 transition-colors">
         <UserAvatar
           name={profile?.name || user?.email || '?'}
           initials={profile?.initials || (user?.email?.[0] || '?').toUpperCase()}
@@ -232,7 +232,7 @@ export default function CommentSection({ postId, onCommentAdded, onCommentDelete
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
             placeholder="Write a comment…"
-            className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400"
+            className="flex-1 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-400 transition-colors"
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleAddComment()}
           />
           <button
