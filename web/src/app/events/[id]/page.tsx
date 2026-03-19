@@ -223,7 +223,6 @@ export default function EventDetailPage() {
                     </div>
                   </div>
                 )}
-                </div>
               </div>
 
               <div className="grid grid-cols-3 divide-x divide-gray-100 rounded-xl border border-gray-200 bg-white p-4 text-center dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">

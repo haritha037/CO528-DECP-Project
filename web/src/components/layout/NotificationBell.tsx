@@ -74,12 +74,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-  <div className="absolute top-full -right-12 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg z-50 transition-colors md:right-0 dark:border-gray-800 dark:bg-gray-900">
-    <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-      <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notifications</span>
-        <div className="absolute top-full -right-12 md:right-0 mt-2 w-80 bg-white rounded-xl border border-gray-200 shadow-lg z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="text-sm font-semibold text-gray-800">Notifications</span>
+        <div className="absolute top-full -right-12 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg z-50 transition-colors md:right-0 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+            <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notifications</span>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
